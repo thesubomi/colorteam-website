@@ -1,0 +1,11 @@
+---
+// Site navigation. The current page gets w--current via the `current` prop.
+const { current = "" } = Astro.props;
+---
+<div class="navbar gray w-nav"><div class="container"><div class="nav-wrapper dark"><div class="navbar-left-wrap"><a class="brand-logo w-inline-block" href="/"><img alt="Colorteam" class="brand-image" src="/img/colorteam-wordmark.svg"/></a><nav class="nav-menu w-nav-menu"><div class="nav-menu-wrap"><a class="nav-link w-inline-block" href="/work/"><div class="nav-link-text">Work</div><div class="nav-link-text">Work</div></a><a class="nav-link w-inline-block" href="/services/"><div class="nav-link-text">Services</div><div class="nav-link-text">Services</div></a><a class="nav-link w-inline-block" href="/podcast/"><div class="nav-link-text">Podcast</div><div class="nav-link-text">Podcast</div></a><a class="nav-link w-inline-block" href="/about/"><div class="nav-link-text">About</div><div class="nav-link-text">About</div></a><a class="nav-link w-inline-block" href="/blog/"><div class="nav-link-text">Insights</div><div class="nav-link-text">Insights</div></a><a class="nav-link w-inline-block mobile-only" href="https://calendar.app.google/MSoTdRKrZPzgjE7QA" rel="noopener" target="_blank"><div class="nav-link-text">Book a Call</div><div class="nav-link-text">Book a Call</div></a></div></nav></div><div class="nav-buttton-wrap"><div class="nav-btn-wrap"><a class="primary-button w-inline-block is-nav" href="https://calendar.app.google/MSoTdRKrZPzgjE7QA" rel="noopener" target="_blank"><div class="primary-btn-wrap"><div class="primary-btn-text-wrap _01"><div>Book a Call</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-text-wrap _02"><div>Book a Call</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-bg"></div></div></a></div><div class="menu-button w-nav-button"><div class="hamburger"><span></span><span></span><span></span></div></div></div></div></div></div>
+<script is:inline define:vars={{ current }}>
+  document.querySelectorAll(".nav-menu a.nav-link").forEach(function(a){
+    var on = current && (a.getAttribute("href") === current);
+    a.classList.toggle("w--current", on); if (on) a.setAttribute("aria-current","page");
+  });
+</script>
