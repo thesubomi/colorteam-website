@@ -10,6 +10,7 @@ export default defineConfig({
   redirects: {
     "/our-products": "/services/#expertise-products",
     "/insights": "/blog/",
-    "/contact": "/about/"
+    "/contact": "/about/",
+    "/blog/content-syndication-in-streaming-marketing-netflix-case-study": "/blog/"
 },
 });

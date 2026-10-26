@@ -23,9 +23,28 @@
       document.getElementById('ct-sp-title').textContent=c.getAttribute('data-title');document.getElementById('ct-sp-guest').textContent=c.getAttribute('data-guest');
       document.getElementById('ct-sp-role').textContent=c.getAttribute('data-role');
       document.getElementById('ct-sp-label').lastChild.textContent=(n===document.querySelector('.ct-sp-card').getAttribute('data-num'))?'Latest episode':'Episode '+n;
-      openA.href='https://open.spotify.com/episode/'+id;load();
+      if(openA)openA.href='https://open.spotify.com/episode/'+id;load();
       var f=document.querySelector('.ct-sp-feature');if(f&&f.getBoundingClientRect().top<0)f.scrollIntoView({behavior:'smooth',block:'start'});});});
   })();
+  /* hero stats carousel: auto-scrolls, and follows sideways trackpad / shift-wheel / touch swipes */
+  document.querySelectorAll('.ct-stats').forEach(function(box){var tr=box.querySelector('.ct-stats-track');if(!tr)return;
+    box.classList.add('is-js');var x=0,half=0,hover=false,hold=0,last=performance.now(),tx=null,ty=null;
+    var still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function measure(){half=tr.scrollWidth/2;}measure();window.addEventListener('resize',measure);
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);
+    function wrap(){if(!half)return;x=x%half;if(x>0)x-=half;}
+    function nudge(dx){x-=dx;hold=performance.now()+1600;wrap();}
+    box.addEventListener('mouseenter',function(){hover=true});box.addEventListener('mouseleave',function(){hover=false});
+    box.addEventListener('wheel',function(e){var dx=e.deltaX||(e.shiftKey?e.deltaY:0);
+      if(dx&&Math.abs(dx)>=Math.abs(e.shiftKey?0:e.deltaY)){e.preventDefault();nudge(dx*(e.deltaMode===1?16:1));}},{passive:false});
+    box.addEventListener('touchstart',function(e){tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+    box.addEventListener('touchmove',function(e){if(tx===null)return;var cx=e.touches[0].clientX,cy=e.touches[0].clientY;
+      if(Math.abs(cx-tx)>Math.abs(cy-ty)){nudge(tx-cx);}tx=cx;ty=cy;},{passive:true});
+    box.addEventListener('touchend',function(){tx=null});
+    function tick(t){var dt=Math.min(t-last,64);last=t;
+      if(!still&&!hover&&t>hold)x-=dt*0.055;wrap();
+      tr.style.transform='translate3d('+x.toFixed(2)+'px,0,0)';requestAnimationFrame(tick);}
+    requestAnimationFrame(tick);});
   var top=document.querySelector('.ct-totop');
   var sd=document.querySelector('.ct-scrolldown');
   if(sd)sd.addEventListener('click',function(){var pg=document.querySelector('.ct-page:not([hidden])');var hero=pg&&pg.querySelector('.section.hero');
@@ -51,8 +70,21 @@
       document.querySelectorAll('[data-tab]').forEach(function(x){x.classList.toggle('w--current',x===tab)});
       document.querySelectorAll('[data-pane]').forEach(function(p){p.classList.toggle('w--tab-active',p.getAttribute('data-pane')===k)});});
   });
+  /* newsletter: submits to HubSpot Forms (portal 145992220). Set HS_FORM to the form's GUID to switch it on. */
+  var HS_PORTAL='145992220',HS_FORM='c5ca2739-8389-4060-a664-84c60a29286e';
   var f=document.getElementById('newsletter');
-  if(f){f.addEventListener('submit',function(e){e.preventDefault();var n=f.parentNode.querySelector('.form-note');
-    if(!n){n=document.createElement('p');n.className='form-note';f.parentNode.insertBefore(n,f.nextSibling)}
-    n.textContent='Thanks. Newsletter sign-up goes live when the site is deployed.';});}
+  if(f){f.addEventListener('submit',function(e){e.preventDefault();
+    var n=f.parentNode.parentNode.querySelector('.form-note');
+    if(!n){n=document.createElement('p');n.className='form-note';f.parentNode.parentNode.insertBefore(n,f.parentNode.nextSibling)}
+    var inp=f.querySelector('input[type=email]'),btn=f.querySelector('[type=submit]'),email=(inp.value||'').trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){n.textContent='Please enter a valid email address.';inp.focus();return;}
+    if(!HS_FORM){n.textContent='Thanks. Newsletter sign-up is being connected.';return;}
+    var hutk=(document.cookie.match(/(?:^|; )hubspotutk=([^;]+)/)||[])[1];
+    var ctx={pageUri:location.href,pageName:document.title};if(hutk)ctx.hutk=hutk;
+    btn.disabled=true;n.textContent='Subscribing…';
+    fetch('https://api.hsforms.com/submissions/v3/integration/submit/'+HS_PORTAL+'/'+HS_FORM,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({fields:[{objectTypeId:'0-1',name:'email',value:email}],context:ctx})})
+    .then(function(r){if(!r.ok)throw r;n.textContent='Thanks, you are subscribed. Look out for our next update.';f.reset();})
+    .catch(function(){n.textContent='Something went wrong. Please try again, or email subomi@colorteam.io.';})
+    .finally(function(){btn.disabled=false;});});}
 })();
