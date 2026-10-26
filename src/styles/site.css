@@ -746,7 +746,7 @@ a.ct-proj-media:hover img{transform:scale(1.03)}
 .section.cta .cta-single-wrap._01{transform:none;width:100%}
 .section.cta .cta-single-wrap._02{display:none}
 /* v1.1: two case studies now, so the article grids run two-up on desktop */
-@media (min-width:768px){.blog-v1-grid-wrap{grid-template-columns:1fr 1fr}}
+@media (min-width:768px){.ct-art-more .blog-v1-grid-wrap{grid-template-columns:1fr 1fr}}
 
 /* v1.1: About page philosophy block is text only now (50+ card removed) */
 .ct-philo-grid{grid-template-columns:1fr}
