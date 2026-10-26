@@ -790,7 +790,8 @@ a.ct-proj-media:hover img{transform:scale(1.03)}
   /* Four Ways We Help You Grow: no tap animation */
   .growth-card-wrap,.growth-card-wrap:hover{transform:none;box-shadow:none}
   .growth-card-wrapper:hover .growth-card-bg{height:0}
-  .growth-card-wrapper:hover .growth-card-title,.growth-card-wrapper:hover .growth-card-details{color:inherit}
+  .growth-card-wrapper:hover .growth-card-title{color:var(--white)}
+  .growth-card-wrapper:hover .growth-card-details{color:var(--light-gray)}
   .growth-card-wrapper:hover .growth-card-icon{transform:none}
   /* Colorteam in Numbers: label sits under the number */
   .number-top-wrap{flex-direction:column;align-items:flex-start;gap:6px}
@@ -798,7 +799,8 @@ a.ct-proj-media:hover img{transform:scale(1.03)}
 /* v1.1: Podcast "Be Our Next Guest" cards: no hover/tap animation on any screen size */
 #podcast-steps .growth-card-wrap,#podcast-steps .growth-card-wrap:hover{transform:none;box-shadow:none}
 #podcast-steps .growth-card-wrapper:hover .growth-card-bg{height:0}
-#podcast-steps .growth-card-wrapper:hover .growth-card-title,#podcast-steps .growth-card-wrapper:hover .growth-card-details{color:inherit}
+#podcast-steps .growth-card-wrapper:hover .growth-card-title{color:var(--white)}
+#podcast-steps .growth-card-wrapper:hover .growth-card-details{color:var(--light-gray)}
 #podcast-steps .growth-card-wrapper:hover .growth-card-icon{transform:none}
 
 
