@@ -761,6 +761,40 @@ a.ct-proj-media:hover img{transform:scale(1.03)}
 .ct-nl-names{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .footer-text-feild.ct-nl-name{padding-right:12px}
 .ct-nl-email{position:relative}
+/* ===== v1.1 mobile review ===== */
+/* hamburger centred in its button and flush with the right edge, so it lines up with the logo */
+.menu-button{display:flex;align-items:center;justify-content:flex-end}
+/* "Since 2017" pill gets the same treatment as "Design-led" */
+.plan-btm-text._07{background-color:var(--white);color:var(--dark-color)}
+/* case study cards: no hover animation anywhere */
+.blog-v1-image,.blog-v1-image:hover{transform:none;filter:none;transition:none}
+.blog-v1-image-wrap:hover{transform:none}
+@media (max-width:767px){
+  /* the floating Scroll button overlapped content on phones */
+  .ct-scrolldown{display:none}
+  /* hero stats: two cards per screen, text sized to fit */
+  .ct-stats{-webkit-mask-image:none;mask-image:none}
+  .ct-stat{width:calc((100vw - 45px) / 2);padding:12px;border-radius:14px}
+  .ct-stat-top{flex-direction:column;align-items:flex-start;gap:6px}
+  .ct-stat-pill{padding:3px 8px;gap:5px;font-size:11px}
+  .ct-stat-pill b{width:5px;height:5px}
+  .ct-stat-client{font-size:11px;text-align:left;max-width:100%}
+  .ct-stat-num{font-size:34px;letter-spacing:-1.2px}
+  .ct-stat-num.is-long{font-size:28px;letter-spacing:-1px}
+  .ct-stat-label{margin-top:6px;font-size:12px;line-height:1.3;max-width:none}
+  /* WOR [image] KS: bring the image stack back on phones */
+  .work-title-img-wrap{display:flex}
+  .work-animated-img-wrap{width:64px;height:48px;max-width:none;border-radius:10px}
+  /* client logos a touch smaller */
+  .trusted-single-img{width:96px;margin-right:28px}
+  /* Four Ways We Help You Grow: no tap animation */
+  .growth-card-wrap,.growth-card-wrap:hover{transform:none;box-shadow:none}
+  .growth-card-wrapper:hover .growth-card-bg{height:0}
+  .growth-card-wrapper:hover .growth-card-title,.growth-card-wrapper:hover .growth-card-details{color:inherit}
+  .growth-card-wrapper:hover .growth-card-icon{transform:none}
+  /* Colorteam in Numbers: label sits under the number */
+  .number-top-wrap{flex-direction:column;align-items:flex-start;gap:6px}
+}
 
 
 /* multi-page build: pages are no longer toggled with [hidden] */
