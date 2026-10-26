@@ -763,7 +763,7 @@ a.ct-proj-media:hover img{transform:scale(1.03)}
 .ct-nl-email{position:relative}
 /* ===== v1.1 mobile review ===== */
 /* hamburger centred in its button and flush with the right edge, so it lines up with the logo */
-.menu-button{display:flex;align-items:center;justify-content:flex-end}
+@media (max-width:991px){.menu-button{display:flex;align-items:center;justify-content:flex-end}}
 /* "Since 2017" pill gets the same treatment as "Design-led" */
 .plan-btm-text._07{background-color:var(--white);color:var(--dark-color)}
 /* case study cards: no hover animation anywhere */
