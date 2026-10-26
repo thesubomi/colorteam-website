@@ -757,6 +757,11 @@ a.ct-proj-media:hover img{transform:scale(1.03)}
 /* v1.1: the dot before "Trusted by leading brands" is the Colorteam star (pink) */
 .trusted-dots{width:18px;height:18px;border-radius:0;background-color:var(--primary-color);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 0c.5 4.6 2.4 6.9 8 8-5.6 1.1-7.5 3.4-8 8-.5-4.6-2.4-6.9-8-8 5.6-1.1 7.5-3.4 8-8z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 0c.5 4.6 2.4 6.9 8 8-5.6 1.1-7.5 3.4-8 8-.5-4.6-2.4-6.9-8-8 5.6-1.1 7.5-3.4 8-8z'/%3E%3C/svg%3E") center/contain no-repeat}
 
+/* v1.1: newsletter asks for first name, last name and email */
+.ct-nl-names{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.footer-text-feild.ct-nl-name{padding-right:12px}
+.ct-nl-email{position:relative}
+
 
 /* multi-page build: pages are no longer toggled with [hidden] */
 .ct-page{display:block}

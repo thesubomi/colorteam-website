@@ -77,14 +77,16 @@
     var n=f.parentNode.parentNode.querySelector('.form-note');
     if(!n){n=document.createElement('p');n.className='form-note';f.parentNode.parentNode.insertBefore(n,f.parentNode.nextSibling)}
     var inp=f.querySelector('input[type=email]'),btn=f.querySelector('[type=submit]'),email=(inp.value||'').trim();
+    var fn=(f.querySelector('#newsletter-firstname')||{}).value||'',ln=(f.querySelector('#newsletter-lastname')||{}).value||'';fn=fn.trim();ln=ln.trim();
+    if(!fn||!ln){n.textContent='Please add your first and last name.';return;}
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){n.textContent='Please enter a valid email address.';inp.focus();return;}
     if(!HS_FORM){n.textContent='Thanks. Newsletter sign-up is being connected.';return;}
     var hutk=(document.cookie.match(/(?:^|; )hubspotutk=([^;]+)/)||[])[1];
     var ctx={pageUri:location.href,pageName:document.title};if(hutk)ctx.hutk=hutk;
     btn.disabled=true;n.textContent='Subscribing…';
     fetch('https://api.hsforms.com/submissions/v3/integration/submit/'+HS_PORTAL+'/'+HS_FORM,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({fields:[{objectTypeId:'0-1',name:'email',value:email}],context:ctx})})
-    .then(function(r){if(!r.ok)throw r;n.textContent='Thanks, you are subscribed. Look out for our next update.';f.reset();})
+      body:JSON.stringify({fields:[{objectTypeId:'0-1',name:'firstname',value:fn},{objectTypeId:'0-1',name:'lastname',value:ln},{objectTypeId:'0-1',name:'email',value:email}],context:ctx})})
+    .then(function(r){if(!r.ok)throw r;n.textContent='Thanks '+fn+', you are subscribed. Look out for our next update.';f.reset();})
     .catch(function(){n.textContent='Something went wrong. Please try again, or email subomi@colorteam.io.';})
     .finally(function(){btn.disabled=false;});});}
 })();
