@@ -795,6 +795,11 @@ a.ct-proj-media:hover img{transform:scale(1.03)}
   /* Colorteam in Numbers: label sits under the number */
   .number-top-wrap{flex-direction:column;align-items:flex-start;gap:6px}
 }
+/* v1.1: Podcast "Be Our Next Guest" cards: no hover/tap animation on any screen size */
+#podcast-steps .growth-card-wrap,#podcast-steps .growth-card-wrap:hover{transform:none;box-shadow:none}
+#podcast-steps .growth-card-wrapper:hover .growth-card-bg{height:0}
+#podcast-steps .growth-card-wrapper:hover .growth-card-title,#podcast-steps .growth-card-wrapper:hover .growth-card-details{color:inherit}
+#podcast-steps .growth-card-wrapper:hover .growth-card-icon{transform:none}
 
 
 /* multi-page build: pages are no longer toggled with [hidden] */
