@@ -802,6 +802,16 @@ a.ct-proj-media:hover img{transform:scale(1.03)}
 #podcast-steps .growth-card-wrapper:hover .growth-card-title{color:var(--white)}
 #podcast-steps .growth-card-wrapper:hover .growth-card-details{color:var(--light-gray)}
 #podcast-steps .growth-card-wrapper:hover .growth-card-icon{transform:none}
+/* v1.2 privacy page + footer legal links */
+.ct-legal-links{display:flex;gap:var(--gap-l);flex-wrap:wrap;justify-content:center}
+.ct-legal-links a{color:inherit;text-decoration:none;font-size:inherit;font-weight:inherit;line-height:inherit}
+.ct-legal-links a:hover{color:var(--white)}
+.ct-legal .ct-art-col a{color:var(--dark-color);text-decoration:underline;text-underline-offset:3px}
+.ct-legal .ct-art-col a:hover{color:#c96f98}
+ul.ct-bullets{list-style:disc}
+.ct-legal .ct-art-col h3{margin-top:var(--gap-xl)}
+.section.ct-art-body.ct-legal{padding-top:var(--gap-3xl)}
+.ct-legal .ct-art-lead{margin-top:0}
 
 
 /* multi-page build: pages are no longer toggled with [hidden] */

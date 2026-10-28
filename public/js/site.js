@@ -95,4 +95,9 @@
     var q=window._hsq=window._hsq||[],p=location.pathname;
     q.push(['setPath','/book-a-call']);q.push(['trackPageView']);q.push(['setPath',p]);
   });
+  /* cookie settings: re-opens the HubSpot consent banner so visitors can change their choice */
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('.ct-cookie-settings');if(!a)return;
+    e.preventDefault();(window._hsp=window._hsp||[]).push(['showBanner']);
+  });
 })();
