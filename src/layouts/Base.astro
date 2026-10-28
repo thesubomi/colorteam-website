@@ -32,6 +32,8 @@ const ogImage = new URL(image, Astro.site);
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap" rel="stylesheet" />
+    <!-- HubSpot tracking (portal 145992220, EU data centre): page views, traffic sources, UTM campaigns -->
+    <script is:inline type="text/javascript" id="hs-script-loader" async defer src="https://js-eu1.hs-scripts.com/145992220.js"></script>
   </head>
   <body data-page={page}>
     <div>
@@ -43,6 +45,6 @@ const ogImage = new URL(image, Astro.site);
       </div>
     </div>
     <FloatingButtons />
-    <script is:inline src="/js/site.js?v=15fc3b86"></script>
+    <script is:inline src="/js/site.js?v=5bb7ce16"></script>
   </body>
 </html>

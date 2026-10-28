@@ -89,4 +89,10 @@
     .then(function(r){if(!r.ok)throw r;n.textContent='Thanks '+fn+', you are subscribed. Look out for our next update.';f.reset();})
     .catch(function(){n.textContent='Something went wrong. Please try again, or email subomi@colorteam.io.';})
     .finally(function(){btn.disabled=false;});});}
+  /* analytics: every "Book a call" click is logged in HubSpot as a visit to /book-a-call (links open in a new tab, so the hit completes) */
+  document.addEventListener('click',function(e){
+    var a=e.target.closest&&e.target.closest('a[href*="calendar.app.google"]');if(!a)return;
+    var q=window._hsq=window._hsq||[],p=location.pathname;
+    q.push(['setPath','/book-a-call']);q.push(['trackPageView']);q.push(['setPath',p]);
+  });
 })();
