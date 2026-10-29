@@ -812,6 +812,11 @@ ul.ct-bullets{list-style:disc}
 .ct-legal .ct-art-col h3{margin-top:var(--gap-xl)}
 .section.ct-art-body.ct-legal{padding-top:var(--gap-3xl)}
 .ct-legal .ct-art-lead{margin-top:0}
+/* v1.2 offers: two-card panes centred, agencies pane single card */
+.pricing-tab-grid-wrap.ct-two{grid-template-columns:repeat(2,minmax(0,560px));justify-content:center}
+@media(max-width:767px){.pricing-tab-grid-wrap.ct-two{grid-template-columns:minmax(0,1fr)}}
+.pricing-inner-tab-link{white-space:nowrap}
+@media(max-width:479px){.pricing-inner-tab-link{padding:10px 12px;font-size:14px}}
 
 
 /* multi-page build: pages are no longer toggled with [hidden] */
