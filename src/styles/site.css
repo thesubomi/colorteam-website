@@ -821,3 +821,5 @@ ul.ct-bullets{list-style:disc}
 
 /* multi-page build: pages are no longer toggled with [hidden] */
 .ct-page{display:block}
+/* Values pills: one row of pills side by side at every width, like mobile (the template's desktop offsets pile them on top of each other) */
+@media (min-width:992px){.plan-buttom-wrap{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:16px}.plan-btm-text,.plan-btm-text._01,.plan-btm-text._02,.plan-btm-text._03,.plan-btm-text._04,.plan-btm-text._05,.plan-btm-text._06,.plan-btm-text._07{transform:none;padding:16px 26px;font-size:var(--p-l)}.plan-buttom-wrap{gap:12px}}
