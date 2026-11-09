@@ -38,27 +38,27 @@ const times = ["12:00PM - 1:00PM", "2:00PM - 3:00PM", "4:00PM - 5:00PM", "5:00PM
       <form class="gp-form" id="gp-form" action={FORM_ENDPOINT} method="POST" data-endpoint={FORM_ENDPOINT} data-subject={SUBJECT} novalidate>
         <input type="text" name="_honey" class="gp-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
-        <fieldset class="gp-card">
-          <legend class="gp-h"><span class="gp-num">01</span>Basic Details About You</legend>
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">01</span>Basic Details About You</h2>
           <div class="gp-grid">
             <label class="gp-field"><span class="gp-label">Name <i>*</i></span><input class="gp-input" type="text" name="Name" autocomplete="name" required /></label>
             <label class="gp-field"><span class="gp-label">Role &amp; Company <i>*</i></span><input class="gp-input" type="text" name="Role & Company" autocomplete="organization-title" required /></label>
             <label class="gp-field gp-span"><span class="gp-label">Preferred email <i>*</i></span><input class="gp-input" type="email" name="Preferred email" autocomplete="email" required /></label>
           </div>
-        </fieldset>
+        </div>
 
-        <fieldset class="gp-card">
-          <legend class="gp-h"><span class="gp-num">02</span>Your Work, In Your Own Words</legend>
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">02</span>Your Work, In Your Own Words</h2>
           <label class="gp-field"><span class="gp-label">In your own words, how would you describe what you do? <i>*</i></span><textarea class="gp-input gp-area" name="What you do" rows="4" required></textarea></label>
-        </fieldset>
+        </div>
 
-        <fieldset class="gp-card">
-          <legend class="gp-h"><span class="gp-num">03</span>Context We Won't Find Online</legend>
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">03</span>Context We Won't Find Online</h2>
           <label class="gp-field"><span class="gp-label">Is there anything about your journey, current focus, or recent work that isn't obvious online but feels important to you right now? <i>*</i></span><textarea class="gp-input gp-area" name="Context not online" rows="4" required></textarea></label>
-        </fieldset>
+        </div>
 
-        <fieldset class="gp-card">
-          <legend class="gp-h"><span class="gp-num">04</span>Conversation Themes</legend>
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">04</span>Conversation Themes</h2>
           <div class="gp-field gp-group" data-group="Conversation themes" data-required>
             <span class="gp-label">We curate each episode around a few focused themes. Which of the following are you interested in exploring? <i>*</i></span>
             <div class="gp-options">
@@ -68,10 +68,10 @@ const times = ["12:00PM - 1:00PM", "2:00PM - 3:00PM", "4:00PM - 5:00PM", "5:00PM
           </div>
           <label class="gp-field"><span class="gp-label">Any specific angle or story within the selected themes you'd love to explore?</span><textarea class="gp-input gp-area" name="Specific angle or story" rows="3"></textarea></label>
           <label class="gp-field"><span class="gp-label">Are there any topics you'd prefer we don't cover, or handle lightly?</span><textarea class="gp-input gp-area" name="Topics to avoid or handle lightly" rows="3"></textarea></label>
-        </fieldset>
+        </div>
 
-        <fieldset class="gp-card">
-          <legend class="gp-h"><span class="gp-num">05</span>Recording Availability &amp; Technical Setup</legend>
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">05</span>Recording Availability &amp; Technical Setup</h2>
           <div class="gp-field">
             <span class="gp-label">Select a preferred recording date over the next two weeks</span>
             <div class="gp-grid three">
@@ -108,15 +108,15 @@ const times = ["12:00PM - 1:00PM", "2:00PM - 3:00PM", "4:00PM - 5:00PM", "5:00PM
               <span class="gp-err" hidden>Choose one.</span>
             </div>
           </div>
-        </fieldset>
+        </div>
 
-        <fieldset class="gp-card">
-          <legend class="gp-h"><span class="gp-num">06</span>Consent To Record &amp; Content Use <i>*</i></legend>
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">06</span>Consent To Record &amp; Content Use <i>*</i></h2>
           <div class="gp-field gp-group" data-group="Consent" data-required>
             <label class="gp-opt gp-consent"><input type="checkbox" name="Consent to record & content use" value="Yes, I consent" /><span>I consent to Colorteam recording this episode and using the audio, video, and excerpts (clips, quotes, visuals) for podcast distribution and promotional purposes across platforms.</span></label>
             <span class="gp-err" hidden>We need your consent to record.</span>
           </div>
-        </fieldset>
+        </div>
 
         <div class="gp-actions">
           <button type="submit" class="primary-button w-inline-block is-green gp-submit" id="gp-submit"><div class="primary-btn-wrap"><div class="primary-btn-text-wrap _01"><div>Submit</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-text-wrap _02"><div>Submit</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-bg"></div></div></button>
@@ -138,8 +138,7 @@ const times = ["12:00PM - 1:00PM", "2:00PM - 3:00PM", "4:00PM - 5:00PM", "5:00PM
     .gp-form{display:grid;gap:var(--gap-s)}
     .gp-hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
     .gp-card{margin:0;border:0;background:#fff;border-radius:var(--r-2xl);padding:var(--gap-xl);display:grid;gap:var(--gap-m);min-width:0}
-    .gp-h{float:left;width:100%;padding:0;margin:0 0 4px;display:flex;align-items:center;gap:12px;font-size:var(--h6);line-height:1.25;font-weight:600;letter-spacing:var(--ls-m);color:var(--dark-color)}
-    .gp-h+*{clear:both}
+    .gp-h{width:100%;padding:0;margin:0 0 4px;display:flex;align-items:center;gap:12px;font-size:var(--h6);line-height:1.25;font-weight:600;letter-spacing:var(--ls-m);color:var(--dark-color)}
     .gp-num{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:28px;padding:0 10px;border-radius:999px;background:var(--primary-color);font-size:13px;font-weight:600;letter-spacing:0}
     .gp-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-m)}
     .gp-grid.three{grid-template-columns:1fr 1fr 1fr}
