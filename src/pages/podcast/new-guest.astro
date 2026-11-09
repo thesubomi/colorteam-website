@@ -216,16 +216,37 @@ const times = ["12:00PM - 1:00PM", "2:00PM - 3:00PM", "4:00PM - 5:00PM", "5:00PM
       data._template='table';
       data._captcha='false';
       btn.disabled=true; status.className='gp-status'; status.textContent='Sending…';
-      fetch(form.dataset.endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
-        .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})})
-        .then(function(res){
-          if(!res.ok||String(res.j.success)==='false') throw new Error(res.j.message||'Submission failed');
+
+      // 1) HubSpot: create/update the guest's contact (form "Podcast: Guest prep form")
+      var name=(data['Name']||'').trim(), sp=name.indexOf(' ');
+      var rc=(data['Role & Company']||'').trim(), m=rc.match(/^(.*?)\s*(?:,| at | @ | - |\|)\s*(.+)$/i);
+      var answers=Object.keys(data).filter(function(k){return k.charAt(0)!=='_'}).map(function(k){return k+':\n'+data[k]}).join('\n\n');
+      var hutk=(document.cookie.match(/hubspotutk=([^;]+)/)||[])[1];
+      var hsBody={fields:[
+        {objectTypeId:'0-1',name:'firstname',value:sp>0?name.slice(0,sp):name},
+        {objectTypeId:'0-1',name:'lastname',value:sp>0?name.slice(sp+1):''},
+        {objectTypeId:'0-1',name:'email',value:data['Preferred email']||''},
+        {objectTypeId:'0-1',name:'jobtitle',value:m?m[1]:rc},
+        {objectTypeId:'0-1',name:'company',value:m?m[2]:''},
+        {objectTypeId:'0-1',name:'message',value:answers},
+        {objectTypeId:'0-1',name:'podcast_guest_status',value:'prep_form_received'}
+      ],context:{pageUri:location.href,pageName:document.title}};
+      if(hutk) hsBody.context.hutk=hutk;
+      var toHubSpot=fetch('https://api.hsforms.com/submissions/v3/integration/submit/145992220/62c909ee-ce32-469f-b1a0-95f5e460e955',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(hsBody)})
+        .then(function(r){if(!r.ok) throw new Error('HubSpot '+r.status); return true;});
+
+      // 2) Email copy to podcasts@colorteam.io
+      var toEmail=fetch(form.dataset.endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+        .then(function(r){return r.json().then(function(j){ if(!r.ok||String(j.success)==='false') throw new Error(j.message||'Email failed'); return true; })});
+
+      Promise.allSettled([toHubSpot,toEmail]).then(function(res){
+        if(res.some(function(x){return x.status==='fulfilled'})){
           form.hidden=true; done.hidden=false; done.focus(); done.scrollIntoView({behavior:'smooth',block:'center'});
-        })
-        .catch(function(){
+        } else {
           btn.disabled=false; status.className='gp-status is-error';
           status.innerHTML='Something went wrong. Please try again, or email <a href="mailto:podcasts@colorteam.io">podcasts@colorteam.io</a>.';
-        });
+        }
+      });
     });
   })();
   </script>
