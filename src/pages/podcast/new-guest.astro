@@ -1,9 +1,9 @@
 ---
 import Base from "../../layouts/Base.astro";
 
-// Submissions are emailed to subomi@colorteam.io via FormSubmit (formsubmit.co).
+// Submissions are emailed to podcasts@colorteam.io via FormSubmit (formsubmit.co).
 // The first submission sends a one-time activation email to that inbox; click "Activate Form" once.
-const FORM_ENDPOINT = "https://formsubmit.co/ajax/subomi@colorteam.io";
+const FORM_ENDPOINT = "https://formsubmit.co/ajax/podcasts@colorteam.io";
 const SUBJECT = "New Colorteam Podcast Guest";
 
 const themes = [
@@ -224,7 +224,7 @@ const times = ["12:00PM - 1:00PM", "2:00PM - 3:00PM", "4:00PM - 5:00PM", "5:00PM
         })
         .catch(function(){
           btn.disabled=false; status.className='gp-status is-error';
-          status.innerHTML='Something went wrong. Please try again, or email <a href="mailto:subomi@colorteam.io">subomi@colorteam.io</a>.';
+          status.innerHTML='Something went wrong. Please try again, or email <a href="mailto:podcasts@colorteam.io">podcasts@colorteam.io</a>.';
         });
     });
   })();
