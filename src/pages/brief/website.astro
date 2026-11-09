@@ -1,0 +1,340 @@
+---
+import Base from "../../layouts/Base.astro";
+
+// Website Design & Development Discovery Form (replaces the Tally form tally.so/r/wAoYol).
+// Reusable for direct clients and white-label partners. Add ?partner=<name> to the link to tag submissions.
+// Submissions are emailed to hello@colorteam.io via FormSubmit (formsubmit.co).
+// The first submission sends a one-time activation email to that inbox; click "Activate Form" once.
+const FORM_ENDPOINT = "https://formsubmit.co/ajax/hello@colorteam.io";
+const SUBJECT = "New Website Discovery Brief";
+
+const heardFrom = ["Referral", "Social media", "Event", "Website", "Google"];
+const tones = ["Bold & Modern", "Minimalist & Refined", "Friendly & Approachable", "Professional & Corporate"];
+const goals = [
+  "Build brand credibility",
+  "Generate leads or sales",
+  "Showcase a portfolio or case studies",
+  "Share information / educate audiences",
+  "Host a blog or content hub",
+  "Launch a product or event",
+];
+const features = [
+  "Contact / lead forms",
+  "Newsletter signup",
+  "Booking system",
+  "E-commerce / online store",
+  "Blog or articles section",
+  "Podcast or video integration",
+  "Member login / portal",
+  "Multilingual support",
+];
+const budgets = ["Under $1,000", "$1,000 - $1,999", "$2,000 - $2,999", "$3,000 - $3,999", "$4,000 - $4,999", "Above $5,000"];
+const letters = "ABCDEFGHIJ";
+---
+<Base title="Website Discovery Form | Colorteam" description="Tell us about your business, audience and goals so we can design and build a website that is beautiful, strategic and built to perform." page="page-website-brief">
+
+  <section class="section ct-art-head">
+    <div class="ct-hero-bg" aria-hidden="true"><div class="ct-glow g"></div><div class="ct-glow p"></div><div class="ct-glow w"></div><div class="ct-grid"></div><div class="ct-noise"></div></div>
+    <div class="container w-layout-blockcontainer">
+      <div class="ct-art-headwrap">
+        <div class="ct-art-tags"><span class="ct-chip">Colorteam</span><span class="ct-chip is-ghost">Website discovery</span></div>
+        <h1 class="ct-art-title">Website Design &amp; Development Discovery Form</h1>
+        <p class="ct-art-dek">Your website is often your brand's first impression, and it should do more than exist. It should convert. This discovery form helps us understand your business, audience, and goals so we can design and build a site that's beautiful, strategic, and built to perform. Please take a few minutes to fill it out thoroughly. The more context you provide, the better we can shape a solution that fits your brand perfectly.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section ct-art-body gp-body">
+    <div class="container w-layout-blockcontainer">
+      <form class="gp-form" id="gp-form" action={FORM_ENDPOINT} method="POST" data-endpoint={FORM_ENDPOINT} data-subject={SUBJECT} novalidate>
+        <input type="text" name="_honey" class="gp-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <input type="hidden" name="Partner" id="gp-partner" />
+
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">01</span>Business &amp; Contact Information</h2>
+          <div class="gp-grid">
+            <label class="gp-field"><span class="gp-label">Your name <i>*</i></span><input class="gp-input" type="text" name="Name" autocomplete="name" required /></label>
+            <label class="gp-field"><span class="gp-label">Company / brand name <i>*</i></span><input class="gp-input" type="text" name="Company / brand" autocomplete="organization" required /></label>
+            <label class="gp-field"><span class="gp-label">Email address <i>*</i></span><input class="gp-input" type="email" name="Email" autocomplete="email" required /></label>
+            <label class="gp-field"><span class="gp-label">Website (if any)</span><input class="gp-input" type="text" name="Current website" autocomplete="url" placeholder="yourbrand.com" /></label>
+            <label class="gp-field gp-span"><span class="gp-label">Industry / niche <i>*</i></span><input class="gp-input" type="text" name="Industry / niche" required /></label>
+          </div>
+          <div class="gp-field gp-group" data-group="How did you hear about us?" data-required>
+            <span class="gp-label">How did you hear about us? <i>*</i></span>
+            <div class="gp-options pills">
+              {heardFrom.map((t, i) => (<label class="gp-opt"><input type="radio" name="How did you hear about us?" value={t} /><span><b>{letters[i]}</b>{t}</span></label>))}
+              <label class="gp-opt"><input type="radio" name="How did you hear about us?" value="Other" data-other /><span><b>{letters[heardFrom.length]}</b>Other</span></label>
+            </div>
+            <input class="gp-input gp-other" type="text" name="How did you hear about us? (other)" placeholder="Please specify" hidden />
+            <span class="gp-err" hidden>Choose one.</span>
+          </div>
+        </div>
+
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">02</span>Business Overview</h2>
+          <label class="gp-field"><span class="gp-label">Briefly describe your business or organisation. <i>*</i></span><textarea class="gp-input gp-area" name="Business description" rows="4" required></textarea></label>
+          <label class="gp-field"><span class="gp-label">What are your primary products or services? <i>*</i></span><textarea class="gp-input gp-area" name="Products / services" rows="3" required></textarea></label>
+          <label class="gp-field"><span class="gp-label">Describe your target audience (include demographics, interests, etc.) <i>*</i></span><textarea class="gp-input gp-area" name="Target audience" rows="3" required></textarea></label>
+          <label class="gp-field"><span class="gp-label">What sets your brand apart from competitors? <i>*</i></span><textarea class="gp-input gp-area" name="What sets you apart" rows="3" required></textarea></label>
+          <div class="gp-field gp-group" data-group="Brand tone / personality" data-required>
+            <span class="gp-label">What tone / personality best fits your brand? <i>*</i></span>
+            <div class="gp-options pills">
+              {tones.map((t, i) => (<label class="gp-opt"><input type="radio" name="Brand tone / personality" value={t} /><span><b>{letters[i]}</b>{t}</span></label>))}
+              <label class="gp-opt"><input type="radio" name="Brand tone / personality" value="Other" data-other /><span><b>{letters[tones.length]}</b>Other</span></label>
+            </div>
+            <input class="gp-input gp-other" type="text" name="Brand tone / personality (other)" placeholder="Please specify" hidden />
+            <span class="gp-err" hidden>Choose one.</span>
+          </div>
+        </div>
+
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">03</span>Project Goals &amp; Objectives</h2>
+          <div class="gp-field gp-group" data-group="Website goals" data-required>
+            <span class="gp-label">What are the main goals of your new or redesigned website? <i>*</i></span>
+            <div class="gp-options">
+              {goals.map((t) => (<label class="gp-opt"><input type="checkbox" name="Website goals" value={t} /><span>{t}</span></label>))}
+              <label class="gp-opt"><input type="checkbox" name="Website goals" value="Other" data-other /><span>Other</span></label>
+            </div>
+            <input class="gp-input gp-other" type="text" name="Website goals (other)" placeholder="Please specify" hidden />
+            <span class="gp-err" hidden>Pick at least one goal.</span>
+          </div>
+          <label class="gp-field"><span class="gp-label">What is currently not working (if you have an existing site)?</span><textarea class="gp-input gp-area" name="What's not working now" rows="3"></textarea></label>
+          <label class="gp-field"><span class="gp-label">How will you define a successful website project? (Key metrics or results you want to see) <i>*</i></span><textarea class="gp-input gp-area" name="Definition of success" rows="3" required></textarea></label>
+        </div>
+
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">04</span>Site Structure &amp; Content</h2>
+          <div class="gp-field gp-group" data-group="Existing sitemap?" data-required>
+            <span class="gp-label">Do you already have a sitemap or list of pages? <i>*</i></span>
+            <div class="gp-options pills">
+              <label class="gp-opt"><input type="radio" name="Existing sitemap?" value="Yes" data-reveal="gp-sitemap" /><span><b>A</b>Yes</span></label>
+              <label class="gp-opt"><input type="radio" name="Existing sitemap?" value="No, I need help structuring one" /><span><b>B</b>No, I need help structuring one</span></label>
+            </div>
+            <span class="gp-err" hidden>Choose one.</span>
+          </div>
+          <label class="gp-field gp-reveal" id="gp-sitemap" hidden><span class="gp-label">Link to your sitemap <i>*</i></span><span class="gp-sub">Share a Google Drive, Dropbox, Notion or Figma link. Make sure anyone with the link can view it.</span><input class="gp-input" type="url" name="Sitemap link" placeholder="https://" /></label>
+          <label class="gp-field"><span class="gp-label">What key pages or sections do you expect your site to include? <i>*</i></span><textarea class="gp-input gp-area" name="Key pages / sections" rows="3" required></textarea></label>
+          <div class="gp-field gp-group" data-group="Written content" data-required>
+            <span class="gp-label">Will you be providing all written content? <i>*</i></span>
+            <div class="gp-options pills">
+              <label class="gp-opt"><input type="radio" name="Written content" value="Yes" /><span><b>A</b>Yes</span></label>
+              <label class="gp-opt"><input type="radio" name="Written content" value="Partially, I need help refining current copy" /><span><b>B</b>Partially, I need help refining current copy</span></label>
+              <label class="gp-opt"><input type="radio" name="Written content" value="No, I'd like Colorteam to handle copywriting" /><span><b>C</b>No, I'd like Colorteam to handle copywriting</span></label>
+            </div>
+            <span class="gp-err" hidden>Choose one.</span>
+          </div>
+          <div class="gp-field gp-group" data-group="Images, videos, brand assets" data-required>
+            <span class="gp-label">Will you provide images, videos, or brand assets? <i>*</i></span>
+            <div class="gp-options pills">
+              <label class="gp-opt"><input type="radio" name="Images, videos, brand assets" value="Yes" /><span><b>A</b>Yes</span></label>
+              <label class="gp-opt"><input type="radio" name="Images, videos, brand assets" value="No, I'd need help sourcing visuals" /><span><b>B</b>No, I'd need help sourcing visuals</span></label>
+            </div>
+            <span class="gp-err" hidden>Choose one.</span>
+          </div>
+          <div class="gp-field gp-group" data-group="Existing brand identity?" data-required>
+            <span class="gp-label">Do you have an existing brand identity (logo, colours, typography)? <i>*</i></span>
+            <div class="gp-options pills">
+              <label class="gp-opt"><input type="radio" name="Existing brand identity?" value="Yes" data-reveal="gp-brandguide" /><span><b>A</b>Yes</span></label>
+              <label class="gp-opt"><input type="radio" name="Existing brand identity?" value="No, I need help creating one" /><span><b>B</b>No, I need help creating one</span></label>
+            </div>
+            <span class="gp-err" hidden>Choose one.</span>
+          </div>
+          <label class="gp-field gp-reveal" id="gp-brandguide" hidden><span class="gp-label">Link to your brand guide <i>*</i></span><span class="gp-sub">Share a Google Drive, Dropbox, Notion or Figma link. Make sure anyone with the link can view it.</span><input class="gp-input" type="url" name="Brand guide link" placeholder="https://" /></label>
+        </div>
+
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">05</span>Design Preferences</h2>
+          <label class="gp-field"><span class="gp-label">Describe the overall look and feel you want your website to have. <i>*</i></span><textarea class="gp-input gp-area" name="Look and feel" rows="3" required></textarea></label>
+          <label class="gp-field"><span class="gp-label">Are there websites you admire or would like to take inspiration from?</span><span class="gp-sub">Please include 2–3 links and note what you like about each.</span><textarea class="gp-input gp-area" name="Inspiration websites" rows="4"></textarea></label>
+          <label class="gp-field"><span class="gp-label">Are there any specific colours, fonts, or visual styles you want to avoid? <i>*</i></span><textarea class="gp-input gp-area" name="Styles to avoid" rows="3" required></textarea></label>
+          <div class="gp-field gp-group" data-group="Most important devices" data-required>
+            <span class="gp-label">What devices or screen sizes are most important to your audience? <i>*</i></span>
+            <div class="gp-options pills">
+              <label class="gp-opt"><input type="radio" name="Most important devices" value="Mobile-first" /><span><b>A</b>Mobile-first</span></label>
+              <label class="gp-opt"><input type="radio" name="Most important devices" value="Desktop-heavy" /><span><b>B</b>Desktop-heavy</span></label>
+              <label class="gp-opt"><input type="radio" name="Most important devices" value="Both equally" /><span><b>C</b>Both equally</span></label>
+            </div>
+            <span class="gp-err" hidden>Choose one.</span>
+          </div>
+        </div>
+
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">06</span>Features &amp; Functionality</h2>
+          <div class="gp-field gp-group" data-group="Features / integrations" data-required>
+            <span class="gp-label">What key features or integrations will your site need? <i>*</i></span>
+            <div class="gp-options">
+              {features.map((t) => (<label class="gp-opt"><input type="checkbox" name="Features / integrations" value={t} /><span>{t}</span></label>))}
+              <label class="gp-opt"><input type="checkbox" name="Features / integrations" value="Other" data-other /><span>Other</span></label>
+            </div>
+            <input class="gp-input gp-other" type="text" name="Features / integrations (other)" placeholder="Please specify" hidden />
+            <span class="gp-err" hidden>Pick at least one.</span>
+          </div>
+          <div class="gp-field gp-group" data-group="CMS access" data-required>
+            <span class="gp-label">Do you need backend access for content updates (CMS)? <i>*</i></span>
+            <div class="gp-options pills">
+              <label class="gp-opt"><input type="radio" name="CMS access" value="Yes" /><span><b>A</b>Yes</span></label>
+              <label class="gp-opt"><input type="radio" name="CMS access" value="No, I'll handle all updates through Colorteam" /><span><b>B</b>No, I'll handle all updates through Colorteam</span></label>
+            </div>
+            <span class="gp-err" hidden>Choose one.</span>
+          </div>
+          <div class="gp-field gp-group" data-group="SEO setup" data-required>
+            <span class="gp-label">Would you like Colorteam to handle SEO setup and optimisation? <i>*</i></span>
+            <div class="gp-options pills">
+              <label class="gp-opt"><input type="radio" name="SEO setup" value="Yes (basic on-page SEO)" /><span><b>A</b>Yes (basic on-page SEO)</span></label>
+              <label class="gp-opt"><input type="radio" name="SEO setup" value="Yes (advanced SEO & strategy)" /><span><b>B</b>Yes (advanced SEO &amp; strategy)</span></label>
+              <label class="gp-opt"><input type="radio" name="SEO setup" value="Not at the moment" /><span><b>C</b>Not at the moment</span></label>
+            </div>
+            <span class="gp-err" hidden>Choose one.</span>
+          </div>
+        </div>
+
+        <div class="gp-card" role="group">
+          <h2 class="gp-h"><span class="gp-num">07</span>Project Kickoff Essentials</h2>
+          <div class="gp-grid">
+            <div class="gp-field gp-group" data-group="Domain and hosting?" data-required>
+              <span class="gp-label">Do you already have a domain and hosting provider? <i>*</i></span>
+              <div class="gp-options pills">
+                <label class="gp-opt"><input type="radio" name="Domain and hosting?" value="Yes" /><span><b>A</b>Yes</span></label>
+                <label class="gp-opt"><input type="radio" name="Domain and hosting?" value="No" /><span><b>B</b>No</span></label>
+              </div>
+              <span class="gp-err" hidden>Choose one.</span>
+            </div>
+            <label class="gp-field"><span class="gp-label">What's your estimated budget for this project? (USD) <i>*</i></span>
+              <select class="gp-input gp-select" name="Estimated budget (USD)" required>
+                <option value="" selected disabled>Select a range</option>
+                {budgets.map((b) => (<option value={b}>{b}</option>))}
+              </select>
+            </label>
+            <label class="gp-field"><span class="gp-label">Desired project start date <i>*</i></span><input class="gp-input gp-date" type="date" name="Desired start date" required /></label>
+            <label class="gp-field"><span class="gp-label">Ideal launch or completion date <i>*</i></span><input class="gp-input gp-date" type="date" name="Ideal launch date" required /></label>
+          </div>
+          <label class="gp-field"><span class="gp-label">Anything else you'd like us to know about your business or goals?</span><textarea class="gp-input gp-area" name="Anything else" rows="4"></textarea></label>
+        </div>
+
+        <div class="gp-actions">
+          <button type="submit" class="primary-button w-inline-block is-green gp-submit" id="gp-submit"><div class="primary-btn-wrap"><div class="primary-btn-text-wrap _01"><div>Submit</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-text-wrap _02"><div>Submit</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-bg"></div></div></button>
+          <p class="gp-status" id="gp-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+
+      <div class="gp-card gp-done" id="gp-done" hidden tabindex="-1">
+        <span class="ct-chip">Received</span>
+        <h2>Thank you, we have your brief.</h2>
+        <p>We'll review everything and come back to you by email with next steps and a quote. In the meantime, have a look at some of our recent work.</p>
+        <a class="primary-button w-inline-block is-green" href="/work/"><div class="primary-btn-wrap"><div class="primary-btn-text-wrap _01"><div>See our work</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-text-wrap _02"><div>See our work</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-bg"></div></div></a>
+      </div>
+    </div>
+  </section>
+
+  <style is:global>
+    .gp-body .container{max-width:880px}
+    .gp-form{display:grid;gap:var(--gap-s)}
+    .gp-hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
+    .gp-card{margin:0;border:0;background:#fff;border-radius:var(--r-2xl);padding:var(--gap-xl);display:grid;gap:var(--gap-m);min-width:0}
+    .gp-h{width:100%;padding:0;margin:0 0 4px;display:flex;align-items:center;gap:12px;font-size:var(--h6);line-height:1.25;font-weight:600;letter-spacing:var(--ls-m);color:var(--dark-color)}
+    .gp-num{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:28px;padding:0 10px;border-radius:999px;background:var(--primary-color);font-size:13px;font-weight:600;letter-spacing:0}
+    .gp-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-m)}
+    .gp-span{grid-column:1/-1}
+    .gp-field{display:grid;gap:10px;min-width:0}
+    .gp-field[hidden]{display:none}
+    .gp-label{font-size:var(--p-m);line-height:1.45;font-weight:500;color:var(--dark-color)}
+    .gp-sub{font-size:14px;color:var(--dark-gray);font-weight:500;margin-top:-4px}
+    .gp-label i,.gp-sub i,.gp-h i{font-style:normal;color:#c2457e}
+    .gp-input{width:100%;font:inherit;font-size:var(--p-m);color:var(--dark-color);background:var(--light-field);border:1px solid transparent;border-radius:var(--r-m);padding:13px 16px;min-height:50px;transition:border-color .2s,background .2s;-webkit-appearance:none;appearance:none}
+    .gp-select{cursor:pointer;padding-right:44px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%23101010' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;background-size:12px}
+    .gp-select:invalid{color:var(--dark-gray)}
+    .gp-area{resize:vertical;min-height:110px;line-height:1.5}
+    .gp-input:focus{outline:none;border-color:var(--dark-color);background-color:#fff}
+    .gp-input.is-invalid{border-color:#c2457e;background-color:#fff}
+    .gp-options{display:grid;gap:8px}
+    .gp-options.pills{display:flex;flex-wrap:wrap}
+    .gp-opt{position:relative;display:flex;cursor:pointer}
+    .gp-opt input{position:absolute;opacity:0;width:1px;height:1px}
+    .gp-opt span{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border-radius:var(--r-m);background:var(--light-field);border:1px solid transparent;font-size:var(--p-m);line-height:1.4;color:var(--dark-color);transition:background .2s,border-color .2s}
+    .gp-options:not(.pills) .gp-opt span::before{content:"";flex:0 0 20px;height:20px;border-radius:6px;border:1.5px solid var(--border-color);background:#fff center/12px no-repeat}
+    .gp-opt b{display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px;width:24px;height:24px;border-radius:6px;border:1px solid var(--border-color);font-size:12px;font-weight:600;background:#fff}
+    .gp-opt:hover span{border-color:var(--border-color)}
+    .gp-opt input:checked+span{background:var(--primary-color);border-color:var(--dark-color)}
+    .gp-opt input:checked+span::before{background-color:var(--dark-color);border-color:var(--dark-color);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2 4.8 9 10 3.5' fill='none' stroke='%23F2B0CD' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+    .gp-opt input:checked+span b{background:var(--dark-color);color:var(--primary-color);border-color:var(--dark-color)}
+    .gp-opt input:focus-visible+span{outline:2px solid var(--dark-color);outline-offset:2px}
+    .gp-err{font-size:14px;color:#c2457e;font-weight:500}
+    .gp-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--gap-m);margin-top:var(--gap-xs)}
+    .gp-submit{border:0;padding:0;background:none;cursor:pointer;font:inherit;overflow:hidden;border-radius:var(--r-s)}
+    .gp-submit .primary-btn-wrap{padding:14px 28px;font-size:var(--p-m)}
+    .gp-submit[disabled]{opacity:.6;cursor:progress}
+    .gp-status{margin:0;font-size:15px;color:var(--dark-gray)}
+    .gp-status.is-error{color:#c2457e}
+    .gp-done{text-align:center;justify-items:center;padding:var(--gap-4xl) var(--gap-xl)}
+    .gp-done h2{font-size:var(--h4);line-height:1.15;letter-spacing:var(--ls-l);font-weight:600;margin:0}
+    .gp-done p{max-width:520px;font-size:var(--p-l);line-height:1.6;color:#2d2c28;margin:0}
+    @media (max-width:767px){.gp-grid{grid-template-columns:1fr}.gp-card{padding:var(--gap-l)}}
+  </style>
+
+  <script is:inline>
+  (function(){
+    var form=document.getElementById('gp-form'); if(!form) return;
+    var status=document.getElementById('gp-status'), btn=document.getElementById('gp-submit'), done=document.getElementById('gp-done');
+
+    // ?partner=<name> tags the submission (white-label partners)
+    var partner=new URLSearchParams(location.search).get('partner');
+    document.getElementById('gp-partner').value=partner?partner.slice(0,80):'';
+
+    // dates: no earlier than today; launch no earlier than start
+    function iso(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
+    var dates=form.querySelectorAll('.gp-date'), today=iso(new Date());
+    dates.forEach(function(i){i.min=today});
+    dates[0].addEventListener('change',function(){dates[1].min=dates[0].value||today});
+
+    // "Other" options reveal a text field; "Yes" on sitemap / brand identity reveals a link field
+    function sync(){
+      form.querySelectorAll('.gp-group').forEach(function(g){
+        var o=g.querySelector('input[data-other]'), t=g.querySelector('.gp-other'); if(!o||!t) return;
+        t.hidden=!o.checked; t.required=o.checked; if(!o.checked) t.classList.remove('is-invalid');
+      });
+      form.querySelectorAll('input[data-reveal]').forEach(function(r){
+        var box=document.getElementById(r.dataset.reveal), inp=box.querySelector('input');
+        box.hidden=!r.checked; inp.required=r.checked; if(!r.checked) inp.classList.remove('is-invalid');
+      });
+    }
+    function groupOk(g){return !!g.querySelector('input:checked')}
+    form.addEventListener('change',function(e){
+      sync();
+      if(e.target.matches('input[data-other]')&&e.target.checked){var t=e.target.closest('.gp-group').querySelector('.gp-other'); if(t) t.focus();}
+      var g=e.target.closest('.gp-group'); if(g&&groupOk(g)) g.querySelector('.gp-err').hidden=true;
+      if(e.target.classList.contains('gp-input')&&e.target.checkValidity()) e.target.classList.remove('is-invalid');
+    });
+    form.addEventListener('input',function(e){if(e.target.classList.contains('gp-input')&&e.target.checkValidity()) e.target.classList.remove('is-invalid');});
+
+    function validate(){
+      var first=null;
+      form.querySelectorAll('.gp-input').forEach(function(i){var hidden=i.hidden||i.closest('[hidden]'); var ok=hidden||i.checkValidity(); i.classList.toggle('is-invalid',!ok); if(!ok&&!first) first=i;});
+      form.querySelectorAll('.gp-group[data-required]').forEach(function(g){var ok=groupOk(g); g.querySelector('.gp-err').hidden=ok; if(!ok&&!first) first=g.querySelector('input');});
+      if(first){first.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(function(){first.focus({preventScroll:true})},300);}
+      return !first;
+    }
+
+    form.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(form._honey.value) return;
+      if(!validate()){status.textContent='Please complete the highlighted fields.';status.className='gp-status is-error';return;}
+      var fd=new FormData(form), data={};
+      fd.forEach(function(v,k){ if(k==='_honey') return; v=String(v).trim(); if(!v) return; data[k]=data[k]?data[k]+'\n'+v:v; });
+      ['Website goals','Features / integrations'].forEach(function(k){ if(data[k]) data[k]=data[k].split('\n').map(function(s){return '• '+s}).join('\n'); });
+      data._subject=form.dataset.subject+(data['Company / brand']?': '+data['Company / brand']:'')+(data['Partner']?' (via '+data['Partner']+')':'');
+      data._replyto=data['Email'];
+      data._template='table';
+      data._captcha='false';
+      btn.disabled=true; status.className='gp-status'; status.textContent='Sending…';
+
+      fetch(form.dataset.endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+        .then(function(r){return r.json().then(function(j){ if(!r.ok||String(j.success)==='false') throw new Error(j.message||'Email failed'); })})
+        .then(function(){ form.hidden=true; done.hidden=false; done.focus(); done.scrollIntoView({behavior:'smooth',block:'center'}); })
+        .catch(function(){
+          btn.disabled=false; status.className='gp-status is-error';
+          status.innerHTML='Something went wrong. Please try again, or email <a href="mailto:hello@colorteam.io">hello@colorteam.io</a>.';
+        });
+    });
+  })();
+  </script>
+</Base>
