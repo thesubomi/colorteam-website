@@ -1,0 +1,233 @@
+---
+import Base from "../../layouts/Base.astro";
+
+// Submissions are emailed to subomi@colorteam.io via FormSubmit (formsubmit.co).
+// The first submission sends a one-time activation email to that inbox; click "Activate Form" once.
+const FORM_ENDPOINT = "https://formsubmit.co/ajax/subomi@colorteam.io";
+const SUBJECT = "New Colorteam Podcast Guest";
+
+const themes = [
+  "Turning ideas into real-world execution",
+  "How expertise is developed, packaged, and shared",
+  "Building systems that support scale and consistency",
+  "Designing experiences people actually adopt and use",
+  "Removing friction in products, teams, or workflows",
+  "Lessons learned from implementing",
+  "Creating value that compounds over time",
+  "Behind-the-scenes decisions that shaped outcomes",
+  "Balancing creativity with structure",
+  "Future trends in how people learn, work, or interact with tools",
+];
+const times = ["12:00PM - 1:00PM", "2:00PM - 3:00PM", "4:00PM - 5:00PM", "5:00PM - 6:00PM", "7:00PM - 8:00PM"];
+---
+<Base title="Guest Prep Form | The Colorteam Podcast" description="For confirmed guests of The Colorteam Podcast: share a few final details so we can shape a focused, natural conversation." image="/img/pod-ep05.webp" page="page-podcast-guest" navCurrent="/podcast/">
+
+  <section class="section ct-art-head">
+    <div class="ct-hero-bg" aria-hidden="true"><div class="ct-glow g"></div><div class="ct-glow p"></div><div class="ct-glow w"></div><div class="ct-grid"></div><div class="ct-noise"></div></div>
+    <div class="container w-layout-blockcontainer">
+      <div class="ct-art-headwrap">
+        <div class="ct-art-tags"><span class="ct-chip">The Colorteam Podcast</span><span class="ct-chip is-ghost">Guest prep</span></div>
+        <h1 class="ct-art-title">Guest Prep Form</h1>
+        <p class="ct-art-dek">Thank you for your interest in joining us on the Colorteam Podcast! We're excited to have you on and are already spending time getting familiar with your work. This short form helps us fill in a few final details, align on topics you're most excited to explore, and shape a conversation that feels natural, focused, and valuable for everyone listening.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section ct-art-body gp-body">
+    <div class="container w-layout-blockcontainer">
+      <form class="gp-form" id="gp-form" action={FORM_ENDPOINT} method="POST" data-endpoint={FORM_ENDPOINT} data-subject={SUBJECT} novalidate>
+        <input type="text" name="_honey" class="gp-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+        <fieldset class="gp-card">
+          <legend class="gp-h"><span class="gp-num">01</span>Basic Details About You</legend>
+          <div class="gp-grid">
+            <label class="gp-field"><span class="gp-label">Name <i>*</i></span><input class="gp-input" type="text" name="Name" autocomplete="name" required /></label>
+            <label class="gp-field"><span class="gp-label">Role &amp; Company <i>*</i></span><input class="gp-input" type="text" name="Role & Company" autocomplete="organization-title" required /></label>
+            <label class="gp-field gp-span"><span class="gp-label">Preferred email <i>*</i></span><input class="gp-input" type="email" name="Preferred email" autocomplete="email" required /></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="gp-card">
+          <legend class="gp-h"><span class="gp-num">02</span>Your Work, In Your Own Words</legend>
+          <label class="gp-field"><span class="gp-label">In your own words, how would you describe what you do? <i>*</i></span><textarea class="gp-input gp-area" name="What you do" rows="4" required></textarea></label>
+        </fieldset>
+
+        <fieldset class="gp-card">
+          <legend class="gp-h"><span class="gp-num">03</span>Context We Won't Find Online</legend>
+          <label class="gp-field"><span class="gp-label">Is there anything about your journey, current focus, or recent work that isn't obvious online but feels important to you right now? <i>*</i></span><textarea class="gp-input gp-area" name="Context not online" rows="4" required></textarea></label>
+        </fieldset>
+
+        <fieldset class="gp-card">
+          <legend class="gp-h"><span class="gp-num">04</span>Conversation Themes</legend>
+          <div class="gp-field gp-group" data-group="Conversation themes" data-required>
+            <span class="gp-label">We curate each episode around a few focused themes. Which of the following are you interested in exploring? <i>*</i></span>
+            <div class="gp-options">
+              {themes.map((t) => (<label class="gp-opt"><input type="checkbox" name="Conversation themes" value={t} /><span>{t}</span></label>))}
+            </div>
+            <span class="gp-err" hidden>Pick at least one theme.</span>
+          </div>
+          <label class="gp-field"><span class="gp-label">Any specific angle or story within the selected themes you'd love to explore?</span><textarea class="gp-input gp-area" name="Specific angle or story" rows="3"></textarea></label>
+          <label class="gp-field"><span class="gp-label">Are there any topics you'd prefer we don't cover, or handle lightly?</span><textarea class="gp-input gp-area" name="Topics to avoid or handle lightly" rows="3"></textarea></label>
+        </fieldset>
+
+        <fieldset class="gp-card">
+          <legend class="gp-h"><span class="gp-num">05</span>Recording Availability &amp; Technical Setup</legend>
+          <div class="gp-field">
+            <span class="gp-label">Select a preferred recording date over the next two weeks</span>
+            <div class="gp-grid three">
+              <label class="gp-field"><span class="gp-sub">Date option 1 <i>*</i></span><input class="gp-input gp-date" type="date" name="Date option 1" required /></label>
+              <label class="gp-field"><span class="gp-sub">Date option 2 <i>*</i></span><input class="gp-input gp-date" type="date" name="Date option 2" required /></label>
+              <label class="gp-field"><span class="gp-sub">Date option 3 <i>*</i></span><input class="gp-input gp-date" type="date" name="Date option 3" required /></label>
+            </div>
+          </div>
+          <div class="gp-field gp-group" data-group="Preferred recording time(s)" data-required>
+            <span class="gp-label">Select preferred recording time(s) <i>*</i></span>
+            <div class="gp-options pills">
+              {times.map((t) => (<label class="gp-opt"><input type="checkbox" name="Preferred recording time(s)" value={t} /><span>{t}</span></label>))}
+              <label class="gp-opt"><input type="checkbox" name="Preferred recording time(s)" value="Other" id="gp-time-other" /><span>Other</span></label>
+            </div>
+            <input class="gp-input gp-other" type="text" name="Other recording time" id="gp-time-other-text" placeholder="Tell us a time that works (include your time zone)" hidden />
+            <span class="gp-err" hidden>Pick at least one time.</span>
+          </div>
+          <div class="gp-grid">
+            <div class="gp-field gp-group" data-group="Microphone available?" data-required>
+              <span class="gp-label">Microphone available? <i>*</i></span>
+              <div class="gp-options pills">
+                <label class="gp-opt"><input type="radio" name="Microphone available?" value="Yes" /><span><b>A</b>Yes</span></label>
+                <label class="gp-opt"><input type="radio" name="Microphone available?" value="No" /><span><b>B</b>No</span></label>
+              </div>
+              <span class="gp-err" hidden>Choose one.</span>
+            </div>
+            <div class="gp-field gp-group" data-group="Recording location" data-required>
+              <span class="gp-label">Recording location <i>*</i></span>
+              <div class="gp-options pills">
+                <label class="gp-opt"><input type="radio" name="Recording location" value="Home" /><span><b>A</b>Home</span></label>
+                <label class="gp-opt"><input type="radio" name="Recording location" value="Office" /><span><b>B</b>Office</span></label>
+                <label class="gp-opt"><input type="radio" name="Recording location" value="Studio" /><span><b>C</b>Studio</span></label>
+              </div>
+              <span class="gp-err" hidden>Choose one.</span>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="gp-card">
+          <legend class="gp-h"><span class="gp-num">06</span>Consent To Record &amp; Content Use <i>*</i></legend>
+          <div class="gp-field gp-group" data-group="Consent" data-required>
+            <label class="gp-opt gp-consent"><input type="checkbox" name="Consent to record & content use" value="Yes, I consent" /><span>I consent to Colorteam recording this episode and using the audio, video, and excerpts (clips, quotes, visuals) for podcast distribution and promotional purposes across platforms.</span></label>
+            <span class="gp-err" hidden>We need your consent to record.</span>
+          </div>
+        </fieldset>
+
+        <div class="gp-actions">
+          <button type="submit" class="primary-button w-inline-block is-green gp-submit" id="gp-submit"><div class="primary-btn-wrap"><div class="primary-btn-text-wrap _01"><div>Submit</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-text-wrap _02"><div>Submit</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-bg"></div></div></button>
+          <p class="gp-status" id="gp-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+
+      <div class="gp-card gp-done" id="gp-done" hidden tabindex="-1">
+        <span class="ct-chip">Received</span>
+        <h2>Thank you, you're all set.</h2>
+        <p>We have your details and will confirm the recording date and time by email shortly. In the meantime, catch up on recent episodes.</p>
+        <a class="primary-button w-inline-block is-green" href="/podcast/"><div class="primary-btn-wrap"><div class="primary-btn-text-wrap _01"><div>Listen to the podcast</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-text-wrap _02"><div>Listen to the podcast</div><img alt="" class="primary-icon" src="/img/icons/arrow-up-right-dark.svg"/></div><div class="primary-btn-bg"></div></div></a>
+      </div>
+    </div>
+  </section>
+
+  <style is:global>
+    .gp-body .container{max-width:880px}
+    .gp-form{display:grid;gap:var(--gap-s)}
+    .gp-hp{position:absolute!important;left:-9999px!important;width:1px;height:1px;opacity:0}
+    .gp-card{margin:0;border:0;background:#fff;border-radius:var(--r-2xl);padding:var(--gap-xl);display:grid;gap:var(--gap-m);min-width:0}
+    .gp-h{float:left;width:100%;padding:0;margin:0 0 4px;display:flex;align-items:center;gap:12px;font-size:var(--h6);line-height:1.25;font-weight:600;letter-spacing:var(--ls-m);color:var(--dark-color)}
+    .gp-h+*{clear:both}
+    .gp-num{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:28px;padding:0 10px;border-radius:999px;background:var(--primary-color);font-size:13px;font-weight:600;letter-spacing:0}
+    .gp-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap-m)}
+    .gp-grid.three{grid-template-columns:1fr 1fr 1fr}
+    .gp-span{grid-column:1/-1}
+    .gp-field{display:grid;gap:10px;min-width:0}
+    .gp-label{font-size:var(--p-m);line-height:1.45;font-weight:500;color:var(--dark-color)}
+    .gp-sub{font-size:14px;color:var(--dark-gray);font-weight:500}
+    .gp-label i,.gp-sub i,.gp-h i{font-style:normal;color:#c2457e}
+    .gp-input{width:100%;font:inherit;font-size:var(--p-m);color:var(--dark-color);background:var(--light-field);border:1px solid transparent;border-radius:var(--r-m);padding:13px 16px;min-height:50px;transition:border-color .2s,background .2s;-webkit-appearance:none;appearance:none}
+    .gp-area{resize:vertical;min-height:110px;line-height:1.5}
+    .gp-input:focus{outline:none;border-color:var(--dark-color);background:#fff}
+    .gp-input.is-invalid{border-color:#c2457e;background:#fff}
+    .gp-options{display:grid;gap:8px}
+    .gp-options.pills{display:flex;flex-wrap:wrap}
+    .gp-opt{position:relative;display:flex;cursor:pointer}
+    .gp-opt input{position:absolute;opacity:0;width:1px;height:1px}
+    .gp-opt span{display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;border-radius:var(--r-m);background:var(--light-field);border:1px solid transparent;font-size:var(--p-m);line-height:1.4;color:var(--dark-color);transition:background .2s,border-color .2s}
+    .gp-options:not(.pills) .gp-opt span::before,.gp-consent span::before{content:"";flex:0 0 20px;height:20px;border-radius:6px;border:1.5px solid var(--border-color);background:#fff center/12px no-repeat}
+    .gp-opt b{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;border:1px solid var(--border-color);font-size:12px;font-weight:600;background:#fff}
+    .gp-opt:hover span{border-color:var(--border-color)}
+    .gp-opt input:checked+span{background:var(--primary-color);border-color:var(--dark-color)}
+    .gp-opt input:checked+span::before{background-color:var(--dark-color);border-color:var(--dark-color);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6.2 4.8 9 10 3.5' fill='none' stroke='%23F2B0CD' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+    .gp-opt input:checked+span b{background:var(--dark-color);color:var(--primary-color);border-color:var(--dark-color)}
+    .gp-opt input:focus-visible+span{outline:2px solid var(--dark-color);outline-offset:2px}
+    .gp-consent span{align-items:flex-start}
+    .gp-err{font-size:14px;color:#c2457e;font-weight:500}
+    .gp-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--gap-m);margin-top:var(--gap-xs)}
+    .gp-submit{border:0;padding:0;background:none;cursor:pointer;font:inherit;overflow:hidden;border-radius:var(--r-s)}
+    .gp-submit .primary-btn-wrap{padding:14px 28px;font-size:var(--p-m)}
+    .gp-submit[disabled]{opacity:.6;cursor:progress}
+    .gp-status{margin:0;font-size:15px;color:var(--dark-gray)}
+    .gp-status.is-error{color:#c2457e}
+    .gp-done{text-align:center;justify-items:center;padding:var(--gap-4xl) var(--gap-xl)}
+    .gp-done h2{font-size:var(--h4);line-height:1.15;letter-spacing:var(--ls-l);font-weight:600;margin:0}
+    .gp-done p{max-width:520px;font-size:var(--p-l);line-height:1.6;color:#2d2c28;margin:0}
+    @media (max-width:767px){.gp-grid,.gp-grid.three{grid-template-columns:1fr}.gp-card{padding:var(--gap-l)}}
+  </style>
+
+  <script is:inline>
+  (function(){
+    var form=document.getElementById('gp-form'); if(!form) return;
+    var status=document.getElementById('gp-status'), btn=document.getElementById('gp-submit'), done=document.getElementById('gp-done');
+    // limit date pickers to the next two weeks
+    function iso(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
+    var today=new Date(), max=new Date(); max.setDate(today.getDate()+14);
+    form.querySelectorAll('.gp-date').forEach(function(i){i.min=iso(today);i.max=iso(max)});
+    // "Other" time reveals a text field
+    var other=document.getElementById('gp-time-other'), otherText=document.getElementById('gp-time-other-text');
+    other.addEventListener('change',function(){otherText.hidden=!other.checked; otherText.required=other.checked; if(other.checked) otherText.focus();});
+
+    function groupOk(g){return !!g.querySelector('input:checked')}
+    form.addEventListener('change',function(e){
+      var g=e.target.closest('.gp-group'); if(g&&groupOk(g)) g.querySelector('.gp-err').hidden=true;
+      if(e.target.classList.contains('gp-input')&&e.target.checkValidity()) e.target.classList.remove('is-invalid');
+    });
+    form.addEventListener('input',function(e){if(e.target.classList.contains('gp-input')&&e.target.checkValidity()) e.target.classList.remove('is-invalid');});
+
+    function validate(){
+      var first=null;
+      form.querySelectorAll('.gp-input').forEach(function(i){var ok=i.hidden||i.checkValidity(); i.classList.toggle('is-invalid',!ok); if(!ok&&!first) first=i;});
+      form.querySelectorAll('.gp-group[data-required]').forEach(function(g){var ok=groupOk(g); g.querySelector('.gp-err').hidden=ok; if(!ok&&!first) first=g.querySelector('input');});
+      if(first){first.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(function(){first.focus({preventScroll:true})},300);}
+      return !first;
+    }
+
+    form.addEventListener('submit',function(e){
+      e.preventDefault();
+      if(form._honey.value) return;
+      if(!validate()){status.textContent='Please complete the highlighted fields.';status.className='gp-status is-error';return;}
+      var fd=new FormData(form), data={};
+      fd.forEach(function(v,k){ if(k==='_honey') return; if(k==='Other recording time'&&!v) return; data[k]=data[k]?data[k]+'\n'+v:v; });
+      ['Conversation themes','Preferred recording time(s)'].forEach(function(k){ if(data[k]) data[k]=data[k].split('\n').map(function(s){return '• '+s}).join('\n'); });
+      data._subject=form.dataset.subject;
+      data._replyto=data['Preferred email'];
+      data._template='table';
+      data._captcha='false';
+      btn.disabled=true; status.className='gp-status'; status.textContent='Sending…';
+      fetch(form.dataset.endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+        .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})})
+        .then(function(res){
+          if(!res.ok||String(res.j.success)==='false') throw new Error(res.j.message||'Submission failed');
+          form.hidden=true; done.hidden=false; done.focus(); done.scrollIntoView({behavior:'smooth',block:'center'});
+        })
+        .catch(function(){
+          btn.disabled=false; status.className='gp-status is-error';
+          status.innerHTML='Something went wrong. Please try again, or email <a href="mailto:subomi@colorteam.io">subomi@colorteam.io</a>.';
+        });
+    });
+  })();
+  </script>
+</Base>
