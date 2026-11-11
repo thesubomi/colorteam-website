@@ -824,3 +824,19 @@ ul.ct-bullets{list-style:disc}
 
 /* Numbers section: room below the cards now that the values pills are gone */
 .section.number{padding-bottom:var(--gap-6xl)}
+/* Images carrying text or artwork (covers, posters, guideline pages) must never be cropped:
+   show them at their own proportions on every screen size and browser. */
+.ct-feature-card{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+.ct-feature-img{height:auto;max-width:100%;aspect-ratio:auto;object-fit:contain;align-self:center}
+.blog-v1-image-wrap{align-items:flex-start}
+.blog-v1-image{height:auto;max-width:100%;aspect-ratio:auto;object-fit:contain}
+.work-card-img-wrap{width:100%}
+.work-card-img{height:auto;max-height:none;max-width:100%;aspect-ratio:auto;object-fit:contain}
+.ct-art-cover{height:auto;max-width:100%;aspect-ratio:auto;object-fit:contain}
+.ct-art-figs{align-items:start}
+.ct-art-fig img{height:auto;max-width:100%;aspect-ratio:auto;object-fit:contain}
+@media (max-width:991px){.ct-feature-card{grid-template-columns:minmax(0,1fr)}}
+.work-card-wrap{max-height:none}
+.ct-proj-media img{height:auto;max-width:100%;aspect-ratio:auto;object-fit:contain}
+/* no zoom on hover: it pushes the edges of a cover (logo, pill, headline) out of the frame */
+.work-card-img-wrap:hover .work-card-img,a.ct-proj-media:hover img{transform:none}
