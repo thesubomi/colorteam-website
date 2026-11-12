@@ -1,0 +1,616 @@
+---
+// Internal tool for the social team: builds UTM-tracked links and logs them to the
+// "Colorteam UTM Link Log" Google Sheet through an Apps Script web app (see tools/utm-log/Code.gs).
+// Kept out of search: noindex, nofollow meta below, and excluded from the sitemap in astro.config.mjs.
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="googlebot" content="noindex, nofollow" />
+<title>UTM Link Builder | Colorteam</title>
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style is:inline>
+:root{
+  /* Colorteam v3 dark ground. Layout: five questions on the left, the live link on the right, the team log full width below. */
+  --ground:#000000;
+  --panel:#161616;
+  --raise:#242424;
+  --ink:#dedcd0;
+  --muted:#929a92;
+  --accent:#f2b0cd;
+  --leaf:#83cf55;
+  --warn:#f4c26b;
+  --danger:#ff9a9a;
+  --sans:"SF Pro Display",-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:32px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding:40px 24px 96px}
+@media (max-width:480px){.wrap{padding:28px 16px 64px}}
+
+header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:48px}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.eyebrow svg{width:14px;height:14px;fill:var(--accent)}
+h1{font-size:clamp(36px,5.2vw,60px);line-height:1.03;font-weight:700;margin:0;letter-spacing:-.015em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{max-width:62ch;color:var(--muted);font-size:18px;margin:16px 0 0}
+.tag{border:1.5px solid var(--ink);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:600;white-space:nowrap;color:var(--ink);text-decoration:none;flex:none}
+.tag:hover{background:var(--ink);color:#000}
+
+.builder{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,430px);gap:24px;align-items:start}
+@media (max-width:920px){.builder{grid-template-columns:1fr}.result{position:static !important}}
+.steps{display:flex;flex-direction:column;gap:16px}
+.step{background:var(--panel);border-radius:var(--r-lg);padding:28px;display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px}
+@media (max-width:480px){.step{padding:20px;grid-template-columns:1fr;gap:4px}}
+.num{font-size:14px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;padding-top:4px}
+.step h2{font-size:20px;line-height:1.3;font-weight:600;margin:0}
+.hint{color:var(--muted);font-size:14px;margin:4px 0 16px;max-width:62ch}
+.hint code{font-family:var(--mono);font-size:13px;color:var(--ink)}
+
+.field{width:100%;background:var(--ground);color:var(--ink);border:0;border-radius:var(--r-md);padding:14px 16px;font:inherit;font-size:16px}
+.field::placeholder{color:#6f756f}
+.field:focus-visible,button:focus-visible,a:focus-visible{outline:none;box-shadow:0 0 0 2px var(--ground),0 0 0 4px var(--accent)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--ground);color:var(--ink);border:0;border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+.chip:hover{background:var(--raise)}
+.chip[aria-pressed="true"]{background:var(--accent);color:#000}
+.chip .meta{font-weight:500;opacity:.65;margin-left:6px;font-family:var(--mono);font-size:12px}
+.sub{margin-top:16px}
+.sublabel{font-size:13px;font-weight:600;color:var(--muted);margin:0 0 8px;display:block}
+.status{font-size:14px;margin-top:10px}
+.status.bad{color:var(--danger)}
+.status.warn{color:var(--warn)}
+.hidden{display:none !important}
+
+.result{position:sticky;top:24px;background:var(--panel);border-radius:var(--r-xl);padding:28px;display:flex;flex-direction:column;gap:18px}
+.result h2{font-size:20px;line-height:1.3;margin:0;font-weight:600}
+.linkbox{background:var(--ground);border-radius:var(--r-lg);padding:18px;font-family:var(--mono);font-size:14px;line-height:1.65;word-break:break-all;min-height:96px;user-select:all}
+.linkbox .k{color:var(--muted)}
+.linkbox .v{color:var(--accent)}
+.linkbox.empty{color:var(--muted);font-family:var(--sans);word-break:normal;user-select:auto}
+.params{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;margin:0;font-size:14px}
+.params dt{color:var(--muted);font-family:var(--mono);font-size:13px}
+.params dd{margin:0;font-family:var(--mono);font-size:13px;word-break:break-all}
+.btn{border:0;border-radius:var(--r-md);padding:14px 20px;font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn.primary{background:var(--accent);color:#000}
+.btn.secondary{background:var(--raise);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.actions .btn{flex:1 1 auto}
+.note{font-size:13px;color:var(--muted);margin:0}
+.feedback{font-size:14px;min-height:22px;margin:0}
+.feedback.ok{color:var(--leaf)}
+.feedback.bad{color:var(--danger)}
+.dupe{background:var(--ground);border-radius:var(--r-md);padding:12px 14px;font-size:14px;color:var(--warn)}
+
+.log{margin-top:72px}
+.loghead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.log h2{font-size:clamp(28px,3.6vw,44px);line-height:1.08;margin:0;font-weight:700;letter-spacing:-.01em}
+.log h2 em{font-style:normal;color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:24px}
+@media (max-width:640px){.stats{grid-template-columns:1fr}}
+.stat{background:var(--panel);border-radius:var(--r-lg);padding:20px 22px}
+.stat b{display:block;font-size:32px;line-height:1.15;font-weight:700;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:14px}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.toolbar .right{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#search{max-width:260px;padding:10px 14px;background:var(--panel);font-size:14px}
+.chip.small{padding:7px 13px;font-size:13px;background:var(--panel)}
+.chip.small[aria-pressed="true"]{background:var(--accent)}
+.tablewrap{overflow-x:auto;background:var(--panel);border-radius:var(--r-lg)}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:1000px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;letter-spacing:.05em;text-transform:uppercase;padding:16px}
+td{padding:14px 16px;vertical-align:top}
+tbody tr:nth-child(odd){background:rgba(255,255,255,.035)}
+td.mono{font-family:var(--mono);font-size:13px;word-break:break-word}
+td.date{white-space:nowrap;font-variant-numeric:tabular-nums}
+.lbl{font-weight:600}
+.by{display:block;color:var(--muted);font-size:13px}
+.linkcell{max-width:240px;word-break:break-all;font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:8px}
+.rowbtns{display:flex;gap:6px;flex-wrap:wrap}
+.mini{background:var(--raise);color:var(--ink);border:0;border-radius:var(--r-sm);padding:7px 11px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block}
+.mini:hover{background:#2f2f2f}
+.mini.done{background:var(--leaf);color:#000}
+.mini.armed{background:var(--danger);color:#000}
+.empty-row td{padding:36px 16px;color:var(--muted);text-align:center}
+.lognote{font-size:14px;color:var(--warn);margin:0 0 12px}
+footer{margin-top:40px;color:var(--muted);font-size:13px;max-width:70ch}
+footer code{font-family:var(--mono);color:var(--ink)}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <p class="eyebrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C13 8 16 11 24 12C16 13 13 16 12 24C11 16 8 13 0 12C8 11 11 8 12 0Z"/></svg>UTM link builder</p>
+      <h1>Track every <em>social</em> link</h1>
+      <p class="lede">Pick the page, answer five short questions, and get a tracked link for your post. Every link you save goes into the team log below, so we can see which posts bring people to colorteam.io.</p>
+    </div>
+    <a class="tag" href="https://colorteam.io">colorteam.io</a>
+  </header>
+
+  <section class="builder" aria-label="Build a link">
+    <div class="steps">
+
+      <div class="step">
+        <div class="num">01</div>
+        <div>
+          <h2 id="q1">Where should the link take people?</h2>
+          <p class="hint">Paste the full page address, including https://. Case studies and Insights articles are the pages that lead to booked calls.</p>
+          <input class="field" id="dest" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="https://colorteam.io/..." aria-labelledby="q1">
+          <div class="sub">
+            <span class="sublabel" id="pagesLabel">Quick pick</span>
+            <div class="chips" id="pages" role="group" aria-labelledby="pagesLabel"></div>
+          </div>
+          <p class="status" id="destStatus" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">02</div>
+        <div>
+          <h2 id="q2">Which platform is it going on?</h2>
+          <p class="hint">This becomes <code>utm_source</code>.</p>
+          <div class="chips" id="platforms" role="group" aria-labelledby="q2"></div>
+          <div class="sub hidden" id="platformOtherWrap">
+            <label class="sublabel" for="platformOther">Platform name</label>
+            <input class="field" id="platformOther" type="text" autocomplete="off" placeholder="e.g. pinterest">
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">03</div>
+        <div>
+          <h2 id="q3">How will people see it?</h2>
+          <p class="hint">This sets <code>utm_medium</code> for you, so Google Analytics files the visit under Organic Social, Paid Social or Email.</p>
+          <div class="chips" id="types" role="group" aria-labelledby="q3"></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">04</div>
+        <div>
+          <h2 id="q4">Which campaign is it part of?</h2>
+          <p class="hint">This becomes <code>utm_campaign</code>. Regular posts that aren't pushing a specific offer go under always-on.</p>
+          <div class="chips" id="campaigns" role="group" aria-labelledby="q4"></div>
+          <div class="sub hidden" id="campaignNewWrap">
+            <label class="sublabel" for="campaignNew">New campaign name</label>
+            <input class="field" id="campaignNew" type="text" autocomplete="off" placeholder="e.g. black-friday-2026">
+          </div>
+          <p class="status" id="campaignStatus" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num">05</div>
+        <div>
+          <h2 id="q5">Who is posting it, and which post is it?</h2>
+          <p class="hint">Together these become <code>utm_content</code>, so we can tell posts apart inside the same campaign.</p>
+          <span class="sublabel" id="accLabel">Posted from</span>
+          <div class="chips" id="accounts" role="group" aria-labelledby="accLabel"></div>
+          <div class="sub hidden" id="accountOtherWrap">
+            <label class="sublabel" for="accountOther">Whose account?</label>
+            <input class="field" id="accountOther" type="text" autocomplete="off" placeholder="e.g. jessica or sinahub">
+          </div>
+          <div class="sub">
+            <label class="sublabel" for="post">Short name for the post (optional)</label>
+            <input class="field" id="post" type="text" autocomplete="off" placeholder="e.g. ai creative work carousel">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="result" aria-label="Your tracked link">
+      <h2>Your tracked link</h2>
+      <div class="linkbox" id="linkbox" aria-live="polite"></div>
+      <dl class="params" id="params"></dl>
+      <div>
+        <label class="sublabel" for="who">Your name</label>
+        <input class="field" id="who" type="text" autocomplete="name" maxlength="60" placeholder="So the team knows who made it">
+      </div>
+      <div>
+        <label class="sublabel" for="label">Label for the log</label>
+        <input class="field" id="label" type="text" autocomplete="off" maxlength="140">
+      </div>
+      <div class="dupe hidden" id="dupe"></div>
+      <div class="actions">
+        <button class="btn primary" id="saveBtn" type="button">Save to log and copy</button>
+        <button class="btn secondary" id="copyBtn" type="button">Copy only</button>
+      </div>
+      <p class="feedback" id="feedback" aria-live="polite"></p>
+      <p class="note">Everything is lowercased and spaces become hyphens, so "LinkedIn" and "linkedin" never split into two rows in the reports.</p>
+    </aside>
+  </section>
+
+  <section class="log" aria-labelledby="logTitle">
+    <div class="loghead">
+      <div>
+        <p class="eyebrow">Shared with the team</p>
+        <h2 id="logTitle">Link <em>log</em></h2>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="statTotal">0</b><span>Links saved</span></div>
+      <div class="stat"><b id="statMonth">0</b><span id="statMonthLabel">Saved this month</span></div>
+      <div class="stat"><b id="statTop">None yet</b><span>Most used platform</span></div>
+    </div>
+
+    <p class="lognote hidden" id="logNote"></p>
+
+    <div class="toolbar">
+      <div class="chips" id="filters" role="group" aria-label="Filter by platform"></div>
+      <div class="right">
+        <input class="field" id="search" type="search" placeholder="Search label, campaign, post" aria-label="Search the log">
+        <button class="mini" id="refreshBtn" type="button">Refresh</button>
+        <button class="mini" id="csvBtn" type="button">Copy as CSV</button>
+        <a class="mini" id="sheetLink" href="https://docs.google.com/spreadsheets/d/1ei6JTpSqb5BI8V-boWcsHHYywfA_xPdBFMyURgA45TQ/edit" target="_blank" rel="noopener noreferrer">Open the Sheet</a>
+      </div>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Created</th><th>Label</th><th>Source</th><th>Medium</th><th>Campaign</th><th>Content</th><th>Link</th></tr>
+        </thead>
+        <tbody id="rows">
+          <tr class="empty-row"><td colspan="7">Loading the team log…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <footer>
+      Naming pattern: <code>utm_content</code> is <code>account-placement-post</code>, for example <code>colorteam-post-ai-creative-work-carousel</code> or <code>subomi-bio</code>. "Use again" on any row loads its answers back into the builder for the next post in the same campaign. Every saved link is also a row in the Colorteam UTM Link Log Google Sheet; to fix or remove one, edit its row there.
+    </footer>
+  </section>
+</div>
+
+<script is:inline>
+(function(){
+  /* Paste the Google Apps Script web app URL (ends in /exec) between the quotes. */
+  var LOG_ENDPOINT='';
+
+  var PLATFORMS=[
+    {key:'linkedin',label:'LinkedIn'},{key:'instagram',label:'Instagram'},{key:'x',label:'X'},
+    {key:'substack',label:'Substack'},{key:'youtube',label:'YouTube'},{key:'tiktok',label:'TikTok'},
+    {key:'facebook',label:'Facebook'},{key:'threads',label:'Threads'},{key:'other',label:'Other'}
+  ];
+  var TYPES=[
+    {key:'post',label:'Organic post',medium:'social',placement:'post'},
+    {key:'paid',label:'Paid ad',medium:'paid_social',placement:'ad'},
+    {key:'bio',label:'Profile or bio link',medium:'social',placement:'bio'},
+    {key:'story',label:'Story',medium:'social',placement:'story'},
+    {key:'comment',label:'Comment or DM',medium:'social',placement:'comment'},
+    {key:'email',label:'Newsletter email',medium:'email',placement:'newsletter'}
+  ];
+  var BASE_CAMPAIGNS=['always-on','personal-brand-launch','personal-brand-growth','gtm-execution-engine','brand-studio','colorteam-podcast'];
+  var ACCOUNTS=[{key:'colorteam',label:'Colorteam page'},{key:'subomi',label:'Subomi'},{key:'other',label:'Someone else'}];
+  var HOME='https://colorteam.io';
+  var NAME_KEY='ct-utm-name';
+
+  var S={dest:HOME,platform:'linkedin',platformOther:'',type:'post',campaign:'always-on',campaignNew:'',account:'colorteam',accountOther:'',post:'',label:'',who:''};
+  try{S.who=localStorage.getItem(NAME_KEY)||''}catch(e){}
+  var links=[], loaded=false, loading=false, logError='';
+  var filter='all', query='', saving=false;
+  var connected=/^https:\/\/script\.google\.com\/.+\/exec$/.test(LOG_ENDPOINT);
+
+  function $(id){return document.getElementById(id)}
+  function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+  function slug(s){
+    return String(s||'').toLowerCase().trim()
+      .replace(/&/g,' and ').replace(/['’"]/g,'')
+      .replace(/[^a-z0-9_.-]+/g,'-').replace(/-{2,}/g,'-')
+      .replace(/^[-_.]+|[-_.]+$/g,'');
+  }
+  function str(v){return typeof v==='string'?v:''}
+  function platformLabel(key){var p=PLATFORMS.find(function(x){return x.key===key});return p?p.label:key}
+
+  function compute(){
+    var errs={},warn='';
+    var raw=S.dest.trim(), u=null;
+    if(!raw) errs.dest='Paste the page address to build the link.';
+    else{
+      try{u=new URL(raw)}catch(e){errs.dest='That doesn’t look like a full address. It should start with https://'}
+      if(u && u.protocol!=='https:'){errs.dest='Use the https:// version of the page.';u=null}
+    }
+    if(u && !/(^|\.)colorteam\.io$/i.test(u.hostname)) warn='This page isn’t on colorteam.io, so these visits won’t show in Colorteam’s website reports.';
+    var source=S.platform==='other'?slug(S.platformOther):S.platform;
+    if(!source) errs.source='Name the platform.';
+    var t=TYPES.find(function(x){return x.key===S.type});
+    var campaign=S.campaign==='__new'?slug(S.campaignNew):S.campaign;
+    if(!campaign) errs.campaign='Give the new campaign a name.';
+    var account=S.account==='other'?slug(S.accountOther):S.account;
+    if(!account) errs.account='Say whose account it’s posted from.';
+    var content=[account,t.placement,slug(S.post)].filter(Boolean).join('-');
+    var url='', ok=!Object.keys(errs).length;
+    if(u && ok){
+      ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id'].forEach(function(k){u.searchParams.delete(k)});
+      u.searchParams.set('utm_source',source);
+      u.searchParams.set('utm_medium',t.medium);
+      u.searchParams.set('utm_campaign',campaign);
+      if(content) u.searchParams.set('utm_content',content);
+      url=u.toString();
+    }
+    return {errs:errs,warn:warn,ok:ok&&!!url,source:source,medium:t.medium,campaign:campaign,content:content,url:url,type:t};
+  }
+  function autoLabel(c){
+    var p=S.platform==='other'?(S.platformOther.trim()||'Other'):platformLabel(S.platform);
+    var s=p+' '+c.type.label.toLowerCase();
+    if(S.post.trim()) s+=': '+S.post.trim();
+    return s;
+  }
+
+  /* ---------- chips ---------- */
+  function chipGroup(container,items,current,onPick){
+    container.textContent='';
+    items.forEach(function(it){
+      var b=el('button','chip');b.type='button';b.textContent=it.label;
+      if(it.meta)b.appendChild(el('span','meta',it.meta));
+      b.setAttribute('aria-pressed',String(it.key===current));
+      b.addEventListener('click',function(){onPick(it.key)});
+      container.appendChild(b);
+    });
+  }
+  function recentCampaigns(){
+    var seen={},out=[];
+    links.forEach(function(l){var c=str(l.campaign);if(c&&BASE_CAMPAIGNS.indexOf(c)<0&&!seen[c]){seen[c]=1;out.push(c)}});
+    return out.slice(0,6);
+  }
+  function recentPages(){
+    var seen={},out=[];
+    links.forEach(function(l){
+      var d=str(l.destination).trim();
+      if(!d||seen[d])return;seen[d]=1;
+      try{var u=new URL(d);if(u.protocol!=='https:')return;if((u.origin+u.pathname).replace(/\/$/,'')===HOME)return;
+        out.push({key:d,label:(u.hostname.replace(/^www\./,'')==='colorteam.io'?'':u.hostname)+(u.pathname==='/'?'':u.pathname)})}catch(e){}
+    });
+    return out.slice(0,5);
+  }
+  function renderChips(){
+    chipGroup($('pages'),[{key:HOME,label:'Home'}].concat(recentPages()),S.dest.trim(),function(k){S.dest=k;$('dest').value=k;update()});
+    chipGroup($('platforms'),PLATFORMS,S.platform,function(k){S.platform=k;update();if(k==='other')$('platformOther').focus()});
+    chipGroup($('types'),TYPES.map(function(t){return {key:t.key,label:t.label,meta:t.medium}}),S.type,function(k){S.type=k;update()});
+    var camps=BASE_CAMPAIGNS.concat(recentCampaigns()).map(function(c){return {key:c,label:c}});
+    camps.push({key:'__new',label:'+ New campaign'});
+    chipGroup($('campaigns'),camps,S.campaign,function(k){S.campaign=k;update();if(k==='__new')$('campaignNew').focus()});
+    chipGroup($('accounts'),ACCOUNTS,S.account,function(k){S.account=k;update();if(k==='other')$('accountOther').focus()});
+    $('platformOtherWrap').classList.toggle('hidden',S.platform!=='other');
+    $('campaignNewWrap').classList.toggle('hidden',S.campaign!=='__new');
+    $('accountOtherWrap').classList.toggle('hidden',S.account!=='other');
+  }
+
+  /* ---------- result ---------- */
+  function renderLink(c){
+    var box=$('linkbox');box.textContent='';
+    if(!c.ok){
+      box.className='linkbox empty';
+      box.textContent=c.errs.dest||c.errs.source||c.errs.campaign||c.errs.account||'Answer the questions to build the link.';
+      return;
+    }
+    box.className='linkbox';
+    var hashIdx=c.url.indexOf('#');
+    var main=hashIdx>=0?c.url.slice(0,hashIdx):c.url, hash=hashIdx>=0?c.url.slice(hashIdx):'';
+    var q=main.indexOf('?');
+    box.appendChild(document.createTextNode(q>=0?main.slice(0,q):main));
+    if(q>=0){
+      main.slice(q+1).split('&').forEach(function(pair,i){
+        box.appendChild(el('span','k',(i?'&':'?')));
+        var eq=pair.indexOf('=');var k=eq>=0?pair.slice(0,eq):pair, v=eq>=0?pair.slice(eq+1):'';
+        if(/^utm_/.test(k)){box.appendChild(el('span','k',k+'='));box.appendChild(el('span','v',v))}
+        else box.appendChild(document.createTextNode(pair));
+      });
+    }
+    if(hash) box.appendChild(document.createTextNode(hash));
+  }
+  function renderParams(c){
+    var dl=$('params');dl.textContent='';
+    [['utm_source',c.source],['utm_medium',c.medium],['utm_campaign',c.campaign],['utm_content',c.content]].forEach(function(p){
+      dl.appendChild(el('dt',null,p[0]));dl.appendChild(el('dd',null,p[1]||'—'));
+    });
+  }
+  function update(){
+    var c=compute();
+    renderChips();renderLink(c);renderParams(c);
+    var ds=$('destStatus');
+    if(c.errs.dest&&S.dest.trim()){ds.className='status bad';ds.textContent=c.errs.dest}
+    else if(c.warn){ds.className='status warn';ds.textContent=c.warn}
+    else{ds.className='status';ds.textContent=''}
+    var cs=$('campaignStatus');
+    if(c.campaign&&S.campaign==='__new'&&S.campaignNew.trim()&&c.campaign!==S.campaignNew.trim()){cs.className='status';cs.style.color='var(--muted)';cs.textContent='Saved as '+c.campaign}
+    else cs.textContent='';
+    $('label').placeholder=c.ok?autoLabel(c):'Added automatically if left blank';
+    var dupe=c.ok?links.find(function(l){return l.url===c.url}):null;
+    var dupeBox=$('dupe');
+    if(dupe){dupeBox.classList.remove('hidden');dupeBox.textContent='This exact link is already in the log ('+(str(dupe.label)||'no label')+', '+fmtDate(dupe.createdAt)+'). Copy it from here or change the post name to make a new one.'}
+    else dupeBox.classList.add('hidden');
+    var save=$('saveBtn');
+    save.disabled=!c.ok||!!dupe||!connected||saving||!S.who.trim();
+    save.textContent=saving?'Saving…':(dupe?'Already in the log':(!S.who.trim()&&connected?'Add your name to save':'Save to log and copy'));
+    $('copyBtn').disabled=!c.ok;
+  }
+
+  function say(msg,kind){var f=$('feedback');f.className='feedback '+(kind||'');f.textContent=msg}
+  function copyText(text){
+    return (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(text).then(function(){return true}):Promise.reject())
+      .catch(function(){
+        try{var ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();var ok=document.execCommand('copy');ta.remove();return ok}catch(e){return false}
+      });
+  }
+  function selectLink(){try{var r=document.createRange();r.selectNodeContents($('linkbox'));var s=getSelection();s.removeAllRanges();s.addRange(r)}catch(e){}}
+
+  $('copyBtn').addEventListener('click',function(){
+    var c=compute();if(!c.ok)return;
+    copyText(c.url).then(function(ok){
+      if(ok)say('Copied. Paste it into your post.','ok');else{selectLink();say('Your browser blocked copying. The link is selected, so press Ctrl+C or ⌘C.','bad')}
+    });
+  });
+  $('saveBtn').addEventListener('click',function(){
+    var c=compute();if(!c.ok||!connected||saving||!S.who.trim())return;
+    var copied=copyText(c.url);
+    saving=true;update();
+    var row={
+      createdBy:S.who.trim().slice(0,60),
+      label:(S.label.trim()||autoLabel(c)).slice(0,140),
+      destination:S.dest.trim(),source:c.source,medium:c.medium,campaign:c.campaign,content:c.content,url:c.url,
+      form:{platform:S.platform,platformOther:S.platformOther,type:S.type,campaign:c.campaign,account:S.account,accountOther:S.accountOther,post:S.post}
+    };
+    fetch(LOG_ENDPOINT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(row)})
+      .then(function(r){return r.json()})
+      .then(function(res){
+        if(!res||!res.ok)throw new Error((res&&res.error)||'save_failed');
+        links.unshift({createdAt:Date.now(),createdBy:row.createdBy,label:row.label,source:row.source,medium:row.medium,campaign:row.campaign,content:row.content,destination:row.destination,url:row.url,form:row.form});
+        return copied.then(function(ok){
+          saving=false;S.label='';$('label').value='';update();renderLog();
+          if(ok)say(res.duplicate?'That link was already in the log. It’s copied, so paste it into your post.':'Saved to the log and copied. Paste it into your post.','ok');
+          else{selectLink();say('Saved to the log. Copying was blocked, so the link is selected: press Ctrl+C or ⌘C.','ok')}
+        });
+      })
+      .catch(function(){
+        saving=false;update();
+        say('Couldn’t save to the log just now. The link is still copied. Try saving again in a moment.','bad');
+      });
+  });
+
+  /* ---------- inputs ---------- */
+  function bind(id,key){$(id).addEventListener('input',function(e){S[key]=e.target.value;update()})}
+  bind('dest','dest');bind('platformOther','platformOther');bind('campaignNew','campaignNew');bind('accountOther','accountOther');bind('post','post');
+  $('label').addEventListener('input',function(e){S.label=e.target.value});
+  $('who').addEventListener('input',function(e){S.who=e.target.value;try{localStorage.setItem(NAME_KEY,S.who.trim())}catch(err){}update()});
+
+  /* ---------- log ---------- */
+  function fmtDate(ts){if(typeof ts!=='number')return '';return new Date(ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}
+  function fmtTime(ts){if(typeof ts!=='number')return '';return new Date(ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}
+
+  function filtered(){
+    var q=query.trim().toLowerCase();
+    return links.filter(function(l){
+      if(filter!=='all'&&str(l.source)!==filter)return false;
+      if(!q)return true;
+      return [l.label,l.campaign,l.content,l.source,l.destination,l.createdBy].some(function(v){return str(v).toLowerCase().indexOf(q)>=0});
+    });
+  }
+  function renderStats(){
+    $('statTotal').textContent=String(links.length);
+    var now=new Date(),m=now.getMonth(),y=now.getFullYear();
+    $('statMonth').textContent=String(links.filter(function(l){if(typeof l.createdAt!=='number')return false;var d=new Date(l.createdAt);return d.getMonth()===m&&d.getFullYear()===y}).length);
+    $('statMonthLabel').textContent='Saved in '+now.toLocaleDateString('en-GB',{month:'long'});
+    var counts={};links.forEach(function(l){var s=str(l.source);if(s)counts[s]=(counts[s]||0)+1});
+    var top=Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]})[0];
+    $('statTop').textContent=top?platformLabel(top)+' ('+counts[top]+')':'None yet';
+  }
+  function renderFilters(){
+    var counts={};links.forEach(function(l){var s=str(l.source);if(s)counts[s]=(counts[s]||0)+1});
+    if(filter!=='all'&&!counts[filter])filter='all';
+    var c=$('filters');c.textContent='';
+    [{key:'all',label:'All',n:links.length}].concat(Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]}).map(function(k){return {key:k,label:platformLabel(k),n:counts[k]}})).forEach(function(it){
+      var b=el('button','chip small');b.type='button';b.textContent=it.label;b.appendChild(el('span','meta',String(it.n)));
+      b.setAttribute('aria-pressed',String(it.key===filter));
+      b.addEventListener('click',function(){filter=it.key;renderLog()});
+      c.appendChild(b);
+    });
+  }
+  function renderRows(){
+    var tb=$('rows');tb.textContent='';
+    var msg=null;
+    if(!connected)msg='The team log isn’t connected yet. You can still build and copy links above.';
+    else if(loading&&!links.length)msg='Loading the team log…';
+    else if(logError&&!links.length)msg=logError;
+    else if(!links.length)msg='No links yet. Build your first one above.';
+    var rows=filtered();
+    if(!msg&&!rows.length)msg='No links match that search.';
+    if(msg){var tr=el('tr','empty-row');var td=el('td',null,msg);td.colSpan=7;tr.appendChild(td);tb.appendChild(tr);return}
+    rows.forEach(function(l){
+      var tr=document.createElement('tr');
+      var tdD=el('td','date');tdD.appendChild(document.createTextNode(fmtDate(l.createdAt)));
+      tdD.appendChild(el('span','by',fmtTime(l.createdAt)));
+      if(str(l.createdBy))tdD.appendChild(el('span','by','by '+l.createdBy));
+      tr.appendChild(tdD);
+      var tdL=el('td');tdL.appendChild(el('span','lbl',str(l.label)||'Untitled'));tr.appendChild(tdL);
+      tr.appendChild(el('td','mono',str(l.source)));
+      tr.appendChild(el('td','mono',str(l.medium)));
+      tr.appendChild(el('td','mono',str(l.campaign)));
+      tr.appendChild(el('td','mono',str(l.content)));
+      var tdK=el('td');
+      tdK.appendChild(el('div','linkcell',str(l.url)));
+      var btns=el('div','rowbtns');
+      var cp=el('button','mini','Copy');cp.type='button';
+      cp.addEventListener('click',function(){copyText(str(l.url)).then(function(ok){cp.textContent=ok?'Copied':'Copy failed';cp.classList.toggle('done',ok);setTimeout(function(){cp.textContent='Copy';cp.classList.remove('done')},1600)})});
+      btns.appendChild(cp);
+      var again=el('button','mini','Use again');again.type='button';
+      again.addEventListener('click',function(){useAgain(l)});
+      btns.appendChild(again);
+      if(/^https:\/\//.test(str(l.url))){var a=el('a','mini','Open');a.href=l.url;a.target='_blank';a.rel='noopener noreferrer';btns.appendChild(a)}
+      tdK.appendChild(btns);tr.appendChild(tdK);
+      tb.appendChild(tr);
+    });
+  }
+  function renderLog(){renderStats();renderFilters();renderRows()}
+
+  function useAgain(l){
+    var f=(l&&l.form&&typeof l.form==='object')?l.form:{};
+    S.dest=str(l.destination)||HOME;
+    S.platform=PLATFORMS.some(function(p){return p.key===f.platform})?f.platform:(PLATFORMS.some(function(p){return p.key===l.source})?l.source:'other');
+    S.platformOther=S.platform==='other'?(str(f.platformOther)||str(l.source)):'';
+    S.type=TYPES.some(function(t){return t.key===f.type})?f.type:(TYPES.find(function(t){return t.medium===l.medium})||TYPES[0]).key;
+    var camp=str(f.campaign)||str(l.campaign);
+    if(BASE_CAMPAIGNS.concat(recentCampaigns()).indexOf(camp)>=0){S.campaign=camp;S.campaignNew=''}else{S.campaign='__new';S.campaignNew=camp}
+    S.account=ACCOUNTS.some(function(a){return a.key===f.account})?f.account:'colorteam';
+    S.accountOther=str(f.accountOther);
+    S.post='';S.label='';
+    $('dest').value=S.dest;$('platformOther').value=S.platformOther;$('campaignNew').value=S.campaignNew;$('accountOther').value=S.accountOther;$('post').value='';$('label').value='';
+    update();say('Loaded. Give the new post a short name so its link is different.','ok');
+    window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+    setTimeout(function(){$('post').focus({preventScroll:true})},300);
+  }
+
+  function loadLog(){
+    if(!connected)return;
+    loading=true;logError='';renderRows();
+    var b=$('refreshBtn');b.disabled=true;b.textContent='Refreshing…';
+    var timer=setTimeout(function(){if(loading){logError='The team log is taking a while to load. Try Refresh in a moment.';renderRows()}},10000);
+    fetch(LOG_ENDPOINT,{method:'GET'})
+      .then(function(r){return r.json()})
+      .then(function(res){
+        if(!res||!res.ok||!Array.isArray(res.links))throw new Error('bad');
+        links=res.links.filter(function(l){return l&&typeof l==='object'&&str(l.url)});
+        loaded=true;
+      })
+      .catch(function(){logError='Couldn’t load the team log. Check your connection and press Refresh.'})
+      .then(function(){clearTimeout(timer);loading=false;b.disabled=false;b.textContent='Refresh';update();renderLog()});
+  }
+
+  $('search').addEventListener('input',function(e){query=e.target.value;renderRows()});
+  $('refreshBtn').addEventListener('click',loadLog);
+  $('csvBtn').addEventListener('click',function(){
+    var rows=filtered();var b=$('csvBtn');
+    if(!rows.length){b.textContent='Nothing to copy';setTimeout(function(){b.textContent='Copy as CSV'},1600);return}
+    function q(v){v=String(v==null?'':v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+    var lines=[['Created','Created by','Label','Source','Medium','Campaign','Content','Link'].join(',')];
+    rows.forEach(function(l){lines.push([typeof l.createdAt==='number'?new Date(l.createdAt).toISOString().slice(0,16).replace('T',' '):'',l.createdBy,l.label,l.source,l.medium,l.campaign,l.content,l.url].map(q).join(','))});
+    copyText(lines.join('\n')).then(function(ok){b.textContent=ok?'Copied '+rows.length+' rows':'Copy failed';setTimeout(function(){b.textContent='Copy as CSV'},1800)});
+  });
+
+  /* ---------- start ---------- */
+  $('dest').value=S.dest;$('who').value=S.who;
+  if(!connected){$('refreshBtn').classList.add('hidden')}
+  update();renderLog();loadLog();
+})();
+</script>
+</body>
+</html>

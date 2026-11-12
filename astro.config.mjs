@@ -5,7 +5,10 @@ import sitemap from "@astrojs/sitemap";
 export default defineConfig({
   site: "https://colorteam.io",
   trailingSlash: "ignore",
-  integrations: [sitemap()],
+  integrations: [
+    // internal tools stay out of the sitemap (they also carry noindex, nofollow)
+    sitemap({ filter: (page) => !/\/utm\/?$/.test(new URL(page).pathname) }),
+  ],
   // old colorteam.io addresses that moved; static hosts get a redirect page for each
   redirects: {
     "/our-products": "/services/#expertise-products",
