@@ -1001,3 +1001,8 @@ h1,h2,h3,.inner-title,.growth-title,.plan-title,.work-title,.about-v1-right-titl
 .ct-sp-feature{background:rgba(251,251,251,.92)}
 .ct-sp-follow{background:#000;color:#FBFBFB}
 .ct-stat.is-gauge,.ct-stat.is-chart,.ct-stat.is-gauge.vc,.ct-stat.is-chart.vc{background-repeat:no-repeat!important}
+/* 16 Nov, pass 3: no corner gradients on the home hero; the grey grid on every hero and article head */
+#page-home .section.hero{background:#FBFBFB!important}
+.section.hero .ct-hero-bg,.ct-art-head .ct-hero-bg{display:block!important}
+.section.hero .ct-glow,.section.hero .ct-noise,.ct-art-head .ct-glow,.ct-art-head .ct-noise{display:none!important}
+.section.hero .ct-grid,.ct-art-head .ct-grid{display:block;position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.07) 1px,transparent 1px)!important;background-size:64px 64px!important;opacity:1!important;-webkit-mask-image:radial-gradient(120% 95% at 50% 30%,#000 35%,transparent 85%);mask-image:radial-gradient(120% 95% at 50% 30%,#000 35%,transparent 85%)}
