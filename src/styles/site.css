@@ -840,3 +840,57 @@ ul.ct-bullets{list-style:disc}
 .ct-proj-media img{height:auto;max-width:100%;aspect-ratio:auto;object-fit:contain}
 /* no zoom on hover: it pushes the edges of a cover (logo, pill, headline) out of the frame */
 .work-card-img-wrap:hover .work-card-img,a.ct-proj-media:hover img{transform:none}
+
+/* ==========================================================================
+   Brand Guide 2026 V2 skin (Figma: Colorteam Brand Guide 2026 V2)
+   Grounds: White #FBFBFB, Ink #000, Stone #DEDCD0, Paper #F5F4EF. Lead accent Pink #F2B0CD.
+   Fields (the only place colour lives): Bloom, Ember, Daylight. Lime is retired as a lead colour
+   (it stays only inside the podcast branding). Type: Inter; Newsreader italic for one word per headline.
+   ========================================================================== */
+:root{
+  --white:#FBFBFB;--dark-field:#000000;--light-field:#F5F4EF;--warnning-color:#B8A8EF;
+  --paper:#F5F4EF;--stone:#DEDCD0;--ink:#000000;--warm-grey:#57554D;
+  --peach:#FFBBA0;--lilac:#B8A8EF;--sky:#A7D2F2;--field-lime:#D3EE8F;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --field-bloom:radial-gradient(60% 65% at 92% 8%,rgba(184,168,239,.95) 0%,rgba(184,168,239,0) 70%),radial-gradient(55% 60% at 88% 96%,rgba(255,187,160,.95) 0%,rgba(255,187,160,0) 70%),radial-gradient(55% 60% at 6% 98%,rgba(242,176,205,.95) 0%,rgba(242,176,205,0) 70%),#F5F4EF;
+  --field-ember:radial-gradient(55% 60% at 6% 4%,rgba(255,187,160,.95) 0%,rgba(255,187,160,0) 70%),radial-gradient(55% 60% at 94% 12%,rgba(242,176,205,.95) 0%,rgba(242,176,205,0) 70%),radial-gradient(60% 65% at 4% 98%,rgba(184,168,239,.95) 0%,rgba(184,168,239,0) 70%),#F5F4EF;
+  --field-daylight:radial-gradient(55% 60% at 6% 4%,rgba(167,210,242,.95) 0%,rgba(167,210,242,0) 70%),radial-gradient(55% 60% at 94% 10%,rgba(242,176,205,.9) 0%,rgba(242,176,205,0) 70%),radial-gradient(60% 65% at 96% 98%,rgba(211,238,143,.95) 0%,rgba(211,238,143,0) 70%),#F5F4EF;
+}
+/* utility fields */
+.ct-field{background:var(--field-bloom);border-radius:32px}
+.ct-field.ember{background:var(--field-ember)}
+.ct-field.daylight{background:var(--field-daylight)}
+
+/* headlines: Inter semibold, tight tracking; one Newsreader italic word (the old pink word) */
+h1,h2,h3,.inner-title,.growth-title,.plan-title,.work-title,.about-v1-right-title{font-weight:600;letter-spacing:-0.045em}
+.ct-pink,.inner-title .ct-pink{color:inherit;font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-0.02em}
+
+/* hero: White ground, Ink type; type never sits on a field, so the stats run on a Bloom field below */
+.section.hero{background-color:var(--white)!important;background-image:none!important;color:var(--ink)}
+.ct-hero-bg{display:none}
+.section.hero .inner-title{color:var(--ink)}
+.section.hero .inner-details{color:var(--warm-grey);font-weight:500}
+.section.hero .sub-title-wrap{background-color:var(--paper)}
+.section.hero .inner-sub-title{color:var(--ink)}
+.ct-pill-link:hover{background-color:var(--stone)!important}
+.watch-button{background-color:var(--ink);color:var(--white)}
+.watch-btn-bg{background-color:#2a2a2a}
+.hero-wrap.ct-stats{background:var(--field-bloom);border-radius:36px;padding:28px 0;overflow:hidden}
+.ct-stat{background:var(--paper)!important;background-image:none!important;color:var(--ink)!important;border-radius:22px}
+.ct-stat.vb{background:var(--white)!important}
+.ct-stat.vc{background:var(--ink)!important;color:var(--white)!important}
+.ct-stat.vd{background:var(--stone)!important}
+.ct-stat-pill{border-color:rgba(0,0,0,.25)!important}
+.ct-stat.vc .ct-stat-pill{border-color:rgba(251,251,251,.35)!important}
+.ct-stat-pill b{background:var(--primary-color)}
+
+/* no corner glows on black (brand don't) */
+.section.number,.section.plan{background-image:none!important}
+
+/* buttons are always Ink; pills are Paper with Ink text */
+.primary-btn-wrap{background-color:var(--white)}
+.new-text,.blog-v1-card-ctg{background-color:var(--paper);color:var(--ink)}
+.plan-single-card{border-radius:22px}
+/* nav: an Ink bar at all times, so the Stone wordmark and links read on the White hero */
+@media (min-width:992px){.nav-wrapper,.nav-wrapper.dark{background-color:rgba(0,0,0,.92)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-radius:16px;padding:10px 10px 10px 20px}}
+@media (max-width:991px){.navbar,.navbar.gray{background-color:rgba(0,0,0,.94)!important}.nav-wrapper,.nav-wrapper.dark{background-color:transparent!important}}
