@@ -894,3 +894,43 @@ h1,h2,h3,.inner-title,.growth-title,.plan-title,.work-title,.about-v1-right-titl
 /* nav: an Ink bar at all times, so the Stone wordmark and links read on the White hero */
 @media (min-width:992px){.nav-wrapper,.nav-wrapper.dark{background-color:rgba(0,0,0,.92)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-radius:16px;padding:10px 10px 10px 20px}}
 @media (max-width:991px){.navbar,.navbar.gray{background-color:rgba(0,0,0,.94)!important}.nav-wrapper,.nav-wrapper.dark{background-color:transparent!important}}
+/* ---------- Packages (For Individuals / For Businesses / For Agencies) ---------- */
+.section.ct-packs{background:var(--white);color:var(--ink);padding-top:var(--gap-6xl);padding-bottom:var(--gap-6xl)}
+.ct-packs-head{max-width:720px;margin:0 auto 32px;text-align:center}
+.ct-packs-eyebrow{display:inline-block;padding:6px 14px;border-radius:999px;background:var(--paper);font-size:14px;font-weight:600}
+.ct-packs-h{margin:18px 0 12px;font-size:var(--h2);line-height:1.02;letter-spacing:-0.045em;font-weight:600}
+.ct-packs-p{color:var(--warm-grey);font-size:var(--p-l);line-height:1.45;font-weight:500;text-wrap:balance}
+.ct-packs-tabs{display:flex;justify-content:center;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.ct-packs .pricing-inner-tab-link{background:var(--paper);color:var(--ink);border-radius:999px;font-weight:600}
+.ct-packs .pricing-inner-tab-link.w--current{background:var(--ink);color:var(--white)}
+.ct-pack-field{background:var(--field-bloom);border-radius:36px;padding:28px}
+.ct-pack-field.ember{background:var(--field-ember)}
+.ct-pack-field.daylight{background:var(--field-daylight)}
+.ct-pack-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.ct-pack-grid.is-two{grid-template-columns:1.25fr 1fr}
+.ct-pack{display:flex;flex-direction:column;background:var(--white);border-radius:22px;padding:28px;color:var(--ink)}
+.ct-pack.is-steps{background:var(--paper)}
+.ct-pack-num{font-size:14px;font-weight:600;color:#929A92}
+.ct-pack-title{margin:14px 0 8px;font-size:30px;line-height:1.1;letter-spacing:-0.035em;font-weight:600}
+.ct-pack-desc{color:var(--warm-grey);font-size:16px;line-height:1.45;font-weight:500;min-height:46px}
+.ct-pack-prices{display:flex;gap:28px;flex-wrap:wrap}
+.ct-pack-price{margin:20px 0 4px;font-size:40px;line-height:1;letter-spacing:-0.04em;font-weight:600}
+.ct-pack-price span{display:block;margin-bottom:6px;font-size:14px;letter-spacing:0;font-weight:500;color:var(--warm-grey)}
+.ct-pack-price small{display:block;margin-top:6px;font-size:14px;letter-spacing:0;font-weight:500;color:var(--warm-grey)}
+.ct-pack-list{list-style:none;margin:20px 0 24px;padding:16px 0 0;border-top:1px solid rgba(0,0,0,.08);display:flex;flex-direction:column;gap:10px;flex-grow:1}
+.ct-pack-list li{position:relative;padding-left:26px;font-size:15px;line-height:1.4;font-weight:500}
+.ct-pack-list li::before{content:"";position:absolute;left:0;top:3px;width:16px;height:16px;border-radius:50%;background:var(--primary-color)}
+.ct-pack-btn{display:inline-flex;align-self:flex-start;align-items:center;justify-content:center;padding:14px 22px;border-radius:12px;background:var(--ink);color:var(--white);font-weight:600;text-decoration:none;transition:background-color .2s ease}
+.ct-pack-btn:hover{background:#2a2a2a}
+.ct-pack-steps{margin:16px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:16px;font-size:16px;line-height:1.45;font-weight:500;color:var(--warm-grey)}
+.ct-pack-steps b{color:var(--ink)}
+.ct-packs-note{max-width:640px;margin:24px auto 0;text-align:center;color:var(--warm-grey);font-size:15px;font-weight:500}
+@media (max-width:991px){.ct-pack-grid{grid-template-columns:1fr 1fr}.ct-pack-grid.is-two{grid-template-columns:1fr}}
+@media (max-width:767px){.ct-pack-grid{grid-template-columns:1fr}.ct-pack-field{padding:16px;border-radius:28px}.ct-pack{padding:22px}.ct-pack-price{font-size:34px}}
+.ct-pack,.ct-pack-steps{text-align:left}
+/* hero buttons: primary is Ink, secondary is a Paper pill */
+.section.hero .primary-btn-wrap,.section.hero .primary-button.is-green .primary-btn-wrap{background-color:var(--ink)!important;color:var(--white)!important}
+.section.hero .primary-btn-wrap .primary-icon{filter:invert(1)}
+.section.hero .primary-btn-bg{background-color:#2a2a2a!important}
+.section.hero .inner-button-wrap .watch-button{background-color:var(--paper);color:var(--ink)}
+#page-home .section.hero .inner-button-wrap .watch-button{background-color:var(--ink);color:var(--white)}
