@@ -1006,3 +1006,28 @@ h1,h2,h3,.inner-title,.growth-title,.plan-title,.work-title,.about-v1-right-titl
 .section.hero .ct-hero-bg,.ct-art-head .ct-hero-bg{display:block!important}
 .section.hero .ct-glow,.section.hero .ct-noise,.ct-art-head .ct-glow,.ct-art-head .ct-noise{display:none!important}
 .section.hero .ct-grid,.ct-art-head .ct-grid{display:block;position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.07) 1px,transparent 1px)!important;background-size:64px 64px!important;opacity:1!important;-webkit-mask-image:radial-gradient(120% 95% at 50% 30%,#000 35%,transparent 85%);mask-image:radial-gradient(120% 95% at 50% 30%,#000 35%,transparent 85%)}
+
+/* 17 Nov: stat cards from Figma section 2660:49 (flat fields, big Inter numbers, no graphics) */
+.ct-stat.ct-s2{width:264px!important;height:264px!important;padding:17px 20px!important;border-radius:28px!important;background-image:none!important;text-align:center;justify-content:flex-start}
+.ct-stat.ct-s2::after{display:none}
+.ct-stat.ct-s2.s1{background-color:#FFBBA0!important;color:#000!important}
+.ct-stat.ct-s2.s2{background-color:#F2B0CC!important;color:#000!important}
+.ct-stat.ct-s2.s3{background-color:#E6E3DD!important;color:#000!important}
+.ct-stat.ct-s2.s4{background-color:#1A1A1A!important;color:#FBFBFB!important}
+.ct-stat.ct-s2.s5{background-color:#D3EE8F!important;color:#000!important}
+.ct-s2 .ct-stat-pill{padding:3px 9px!important;gap:4px!important;font-size:10px!important;font-weight:500;border-width:.5px!important;border-color:#1A1A1A!important;line-height:1}
+.ct-s2.s4 .ct-stat-pill{border-color:rgba(251,251,251,.7)!important}
+.ct-s2 .ct-stat-pill b{width:3px!important;height:3px!important;background:currentColor!important}
+.ct-s2 .ct-stat-client{font-size:10px!important;font-weight:500!important;opacity:1!important;letter-spacing:-.03em}
+.ct-s2 .ct-stat-bot{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:46px}
+.ct-s2 .ct-stat-num{font-family:Inter,system-ui,sans-serif!important;font-size:84px!important;font-weight:700!important;letter-spacing:-.045em!important;line-height:.82!important;margin:0!important}
+.ct-s2 .ct-stat-label{margin-top:22px!important;font-size:16px!important;font-weight:500!important;line-height:1.02!important;letter-spacing:-.03em;max-width:none!important;opacity:1!important}
+@media (max-width:767px){
+  .ct-stat.ct-s2{width:calc((100vw - 45px) / 2)!important;height:auto!important;aspect-ratio:1/1!important;padding:10px 12px!important;border-radius:18px!important}
+  .ct-s2 .ct-stat-top{flex-direction:row!important;align-items:center!important}
+  .ct-s2 .ct-stat-pill{font-size:8px!important;padding:2px 6px!important}
+  .ct-s2 .ct-stat-client{font-size:8px!important}
+  .ct-s2 .ct-stat-bot{padding-top:12%}
+  .ct-s2 .ct-stat-num{font-size:clamp(40px,14vw,56px)!important}
+  .ct-s2 .ct-stat-label{margin-top:12px!important;font-size:11px!important}
+}
