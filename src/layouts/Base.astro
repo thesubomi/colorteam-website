@@ -6,7 +6,7 @@ import FloatingButtons from "../components/FloatingButtons.astro";
 import "../styles/site.css";
 
 interface Props { title: string; description: string; image?: string; page: string; navCurrent?: string; }
-const { title, description, image = "/img/og-default.jpg", page, navCurrent = "" } = Astro.props;
+const { title, description, image = "/img/og-2026.jpg", page, navCurrent = "" } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image, Astro.site);
 ---
