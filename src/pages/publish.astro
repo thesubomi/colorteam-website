@@ -267,7 +267,7 @@ import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { parseArticlePdf, slugify, readTime } from "../lib/pdf-article.js";
 
 // The Apps Script web app that commits articles to GitHub (tools/article-publisher/Code.gs).
-const PUBLISH_ENDPOINT = "";
+const PUBLISH_ENDPOINT = "https://script.google.com/macros/s/AKfycbwTNAr4E5iOTn2GNyMAWzH3n5neLDFn_B7lW9ft5niL-Ri9ue6P4OCYOtq8K2O_339U/exec";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 const $ = (id) => document.getElementById(id);
