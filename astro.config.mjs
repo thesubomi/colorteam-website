@@ -7,7 +7,7 @@ export default defineConfig({
   trailingSlash: "ignore",
   integrations: [
     // internal tools stay out of the sitemap (they also carry noindex, nofollow)
-    sitemap({ filter: (page) => !/\/utm\/?$/.test(new URL(page).pathname) }),
+    sitemap({ filter: (page) => !/\/(utm|publish)\/?$/.test(new URL(page).pathname) }),
   ],
   // old colorteam.io addresses that moved; static hosts get a redirect page for each
   redirects: {

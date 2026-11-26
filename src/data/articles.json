@@ -1,0 +1,76 @@
+{
+  "_about": "Every Insights article, newest first. The blog index, the homepage Insights row and each article's More Insights section are built from this list. colorteam.io/publish adds new entries here.",
+  "featured": "verra-building-a-skincare-identity-around-simplicity",
+  "articles": [
+    {
+      "slug": "verra-building-a-skincare-identity-around-simplicity",
+      "title": "VERRA: Building a Skincare Identity Around Simplicity",
+      "category": "Brand identity",
+      "cover": "/img/cover-verra.webp",
+      "card": "A skincare identity where premium doesn't mean excessive: type, palette and packaging built as one system.",
+      "homepage": true,
+      "date": "2026-11-26",
+      "feature": {
+        "title": "VERRA: Building a Skincare Identity Around Simplicity",
+        "dek": "A brand identity for a skincare brand built on considered formulations and uncomplicated everyday care, where premium doesn't have to mean excessive.",
+        "readTime": "3 min read",
+        "stats": [
+          {
+            "label": "Type",
+            "text": "Monument Extended and Inter"
+          },
+          {
+            "label": "Palette",
+            "text": "Drawn from nature"
+          },
+          {
+            "label": "Packaging",
+            "text": "Bottles, jars and labels"
+          }
+        ],
+        "cta": "Read the story"
+      }
+    },
+    {
+      "slug": "the-sale-you-lost-to-nobody",
+      "title": "The Sale You Lost to Nobody: Understanding Why Customers Hesitate",
+      "category": "Insight",
+      "cover": "/img/cover-sale-you-lost.webp",
+      "card": "Not every lost sale goes to a competitor. Sometimes it is lost to uncertainty, and more advertising will not fix that.",
+      "homepage": false,
+      "date": "2026-11-19"
+    },
+    {
+      "slug": "the-human-touch-in-ai-powered-website-design",
+      "title": "The Human Touch in AI-Powered Website Design",
+      "category": "Insight",
+      "cover": "/img/cover-human-touch-v2.webp",
+      "card": "AI can build a website fast. Making one that understands people and feels true to a brand still takes human judgement.",
+      "homepage": false
+    },
+    {
+      "slug": "bringing-africa-and-the-world-to-ostrava-the-afrostrava-case-study",
+      "title": "Bringing Africa and the world to Ostrava: the AfrOstrava case study",
+      "category": "Case study",
+      "cover": "/img/cover-afrostrava-v2.webp",
+      "card": "A brand, a website and a year-round social engine for a new festival, seen by 171.1K people before the gates opened.",
+      "homepage": true
+    },
+    {
+      "slug": "designing-a-conference-identity-that-scales-across-50-assets-the-neclive-2025-case-study",
+      "title": "Designing a conference identity that scales across 50+ assets",
+      "category": "Case study",
+      "cover": "/img/cover-neclive-v2.webp",
+      "card": "NECLive 2025: one fingerprint, shaped into a continent, carried from screens into the venue.",
+      "homepage": true
+    },
+    {
+      "slug": "where-faith-meets-identity-the-kingdom-life-rebrand-case-study",
+      "title": "Where faith meets identity: the Kingdom Life rebrand",
+      "category": "Case study",
+      "cover": "/img/cover-kingdom-life-v2.webp",
+      "card": "One crown, four city identities and five ministry sub-brands for a growing church.",
+      "homepage": false
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+---
+// Template for articles published from colorteam.io/publish.
+// Each article is one JSON file in src/content/articles/ (blocks of text and images).
+// Hand-built articles in this folder (*.astro) take priority over this route.
+import Base from "../../layouts/Base.astro";
+import MoreInsights from "../../components/MoreInsights.astro";
+
+type Block =
+  | { type: "lead" | "p" | "h2" | "h3" | "quote"; text: string }
+  | { type: "ul" | "ol"; items: string[] }
+  | { type: "img"; src: string; alt: string; caption?: string };
+interface Article {
+  slug: string; title: string; description: string; dek: string; category: string;
+  tags?: string[]; author: string; readTime: string; cover: string;
+  hero?: { src: string; alt: string };
+  blocks: Block[];
+  cta?: { title: string; text: string };
+}
+
+export async function getStaticPaths() {
+  const files = import.meta.glob<{ default: Article }>("../../content/articles/*.json", { eager: true });
+  return Object.values(files).map((m) => ({ params: { slug: m.default.slug }, props: { article: m.default } }));
+}
+
+const { article: a } = Astro.props as { article: Article };
+const AUTHOR_PHOTOS: Record<string, string> = {
+  "Olasubomi Archibong": "/img/team-subomi.webp",
+  "Bibitayo Archibong": "/img/team-tayo.webp",
+};
+const photo = AUTHOR_PHOTOS[a.author];
+// Text is escaped first, then **bold** and [label](https://link) are turned into markup.
+const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const inline = (s: string) =>
+  esc(s)
+    .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+|\/[^)\s]*)\)/g, '<a href="$2">$1</a>');
+const cta = a.cta ?? { title: "Ready to build a brand people remember?", text: "Book a call and we will show you how Colorteam can help." };
+const pageId = `page-article-${a.slug}`.slice(0, 60);
+---
+<Base title={`${a.title} | Colorteam`} description={a.description} image={a.cover} page={pageId} navCurrent="/blog/">
+<article class="ct-page ct-article" id={pageId}>
+<section class="section ct-art-head" style={a.hero ? undefined : "padding-bottom:72px"}>
+<div aria-hidden="true" class="ct-hero-bg"><div class="ct-glow g"></div><div class="ct-glow p"></div><div class="ct-glow w"></div><div class="ct-grid"></div><div class="ct-noise"></div></div>
+<div class="container w-layout-blockcontainer">
+<div class="ct-art-headwrap">
+<a class="ct-art-back" href="/blog/"><svg aria-hidden="true" fill="none" height="16" viewbox="0 0 24 24" width="16"><path d="M19 12H5M11 19l-7-7 7-7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path></svg>All insights</a>
+<div class="ct-art-tags"><span class="ct-chip">{a.category}</span>{(a.tags ?? []).map((t) => <span class="ct-chip is-ghost">{t}</span>)}</div>
+<h1 class="ct-art-title">{a.title}</h1>
+{a.dek && <p class="ct-art-dek">{a.dek}</p>}
+<div class="ct-art-meta">{photo && <img alt="" src={photo} />}<span>{a.author}</span><span class="dot"></span><span>{a.readTime}</span></div>
+</div>
+{a.hero && <img alt={a.hero.alt} class="ct-art-cover" src={a.hero.src} />}
+</div>
+</section>
+<section class="section ct-art-body" style={a.hero ? undefined : "padding-top:56px"}>
+<div class="container w-layout-blockcontainer">
+<div class="ct-art-col">
+{a.blocks.map((b, i) => {
+  if (b.type === "lead") return <p class="ct-art-lead" style={i === 0 ? "margin-top:0" : undefined} set:html={inline(b.text)} />;
+  if (b.type === "p") return <p set:html={inline(b.text)} />;
+  if (b.type === "h2") return <h2 set:html={inline(b.text)} />;
+  if (b.type === "h3") return <h3 set:html={inline(b.text)} />;
+  if (b.type === "quote") return <blockquote class="ct-art-quote" set:html={inline(b.text)} />;
+  if (b.type === "ul") return <ul class="ct-art-list">{b.items.map((it) => <li set:html={inline(it)} />)}</ul>;
+  if (b.type === "ol") return <ol class="ct-art-list">{b.items.map((it) => <li set:html={inline(it)} />)}</ol>;
+  if (b.type === "img") return <div class="ct-art-figs one"><figure class="ct-art-fig"><img alt={b.alt} loading="lazy" src={b.src} />{b.caption && <figcaption>{b.caption}</figcaption>}</figure></div>;
+  return null;
+})}
+</div>
+<a class="ct-art-cta" href="https://calendar.app.google/MSoTdRKrZPzgjE7QA" rel="noopener" target="_blank">
+<div><span class="ct-chip is-dark">Work with us</span><h3>{cta.title}</h3><p>{cta.text}</p></div>
+<span class="ct-art-cta-btn">Book a Call</span>
+</a>
+</div>
+</section>
+<MoreInsights current={a.slug} id={`${a.slug}-more`.slice(0, 60)} />
+</article>
+</Base>

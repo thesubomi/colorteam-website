@@ -1,0 +1,728 @@
+---
+// Internal tool for the team: publish an approved article to colorteam.io/blog.
+// The approved PDF and images go in, the page reads the PDF into an article, makes the cover card,
+// and Publish sends everything to an Apps Script web app (see tools/article-publisher/Code.gs),
+// which commits it to GitHub. The site rebuilds and the article is live in about a minute.
+// Kept out of search: noindex, nofollow meta below, and excluded from the sitemap in astro.config.mjs.
+import siteCss from "../styles/site.css?url";
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="googlebot" content="noindex, nofollow" />
+<title>Article Publisher | Colorteam</title>
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@1,6..72,400&display=swap" rel="stylesheet" />
+<style is:inline>
+:root{
+  --ground:#000000; --panel:#161616; --raise:#242424; --ink:#dedcd0; --muted:#929a92;
+  --accent:#f2b0cd; --leaf:#83cf55; --warn:#f4c26b; --danger:#ff9a9a;
+  --sans:"SF Pro Display",-apple-system,BlinkMacSystemFont,"Inter",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-xl:32px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:40px 24px 96px}
+@media (max-width:480px){.wrap{padding:28px 16px 64px}}
+header.top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;margin-bottom:48px}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+h1{font-size:clamp(36px,5.2vw,60px);line-height:1.03;font-weight:700;margin:0;letter-spacing:-.015em}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{max-width:64ch;color:var(--muted);font-size:18px;margin:16px 0 0}
+.tag{border:1.5px solid var(--ink);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:600;white-space:nowrap;color:var(--ink);text-decoration:none;flex:none}
+.tag:hover{background:var(--ink);color:#000}
+.builder{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:24px;align-items:start}
+@media (max-width:980px){.builder{grid-template-columns:1fr}.side{position:static !important}}
+.steps{display:flex;flex-direction:column;gap:16px}
+.step{background:var(--panel);border-radius:var(--r-lg);padding:28px;display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px}
+@media (max-width:480px){.step{padding:20px;grid-template-columns:1fr;gap:4px}}
+.num{font-size:14px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;padding-top:4px}
+.step h2{font-size:20px;line-height:1.3;font-weight:600;margin:0}
+.hint{color:var(--muted);font-size:14px;margin:4px 0 16px;max-width:66ch}
+.field{width:100%;background:var(--ground);color:var(--ink);border:0;border-radius:var(--r-md);padding:13px 15px;font:inherit;font-size:15px}
+textarea.field{resize:vertical;min-height:72px;line-height:1.5}
+select.field{appearance:none;cursor:pointer}
+.field::placeholder{color:#6f756f}
+.field:focus-visible,button:focus-visible,a:focus-visible,.drop:focus-visible{outline:none;box-shadow:0 0 0 2px var(--ground),0 0 0 4px var(--accent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:640px){.grid2{grid-template-columns:1fr}}
+label.lbl{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:14px 0 6px}
+label.lbl:first-child{margin-top:0}
+.count{float:right;font-weight:500;font-family:var(--mono);font-size:12px}
+.count.over{color:var(--danger)}
+.drop{display:block;border:1.5px dashed #3a3a3a;border-radius:var(--r-lg);padding:28px;text-align:center;cursor:pointer;color:var(--muted);transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--accent);background:rgba(242,176,205,.05)}
+.drop b{color:var(--ink);display:block;font-size:16px;margin-bottom:4px}
+.drop input{display:none}
+.status{font-size:14px;margin:12px 0 0}
+.status.ok{color:var(--leaf)} .status.bad{color:var(--danger)} .status.warn{color:var(--warn)}
+.hidden{display:none !important}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:14px}
+.thumbs figure{margin:0;background:var(--ground);border-radius:var(--r-md);overflow:hidden}
+.thumbs img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.thumbs figcaption{font-size:12px;padding:6px 8px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.blocks{display:flex;flex-direction:column;gap:8px}
+.blk{background:var(--ground);border-radius:var(--r-md);padding:10px;display:grid;grid-template-columns:132px minmax(0,1fr) auto;gap:10px;align-items:start}
+@media (max-width:640px){.blk{grid-template-columns:1fr}}
+.blk select{padding:9px 10px;font-size:13px;background:var(--raise)}
+.blk textarea{min-height:44px;padding:9px 11px;font-size:14px;background:var(--raise)}
+.blk.h2 textarea{font-size:17px;font-weight:700}
+.blk.h3 textarea{font-weight:600}
+.blk.quote textarea{font-style:italic}
+.blk .img{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px}
+.blk .img img{width:120px;border-radius:var(--r-sm);display:block}
+.blk .img .field{padding:9px 11px;font-size:13px;background:var(--raise);margin-bottom:6px}
+.tools{display:flex;gap:4px}
+.ic{background:var(--raise);border:0;color:var(--ink);border-radius:var(--r-sm);width:32px;height:32px;cursor:pointer;font-size:15px;line-height:1}
+.ic:hover{background:#333}
+.ic.del:hover{background:#4a2323;color:var(--danger)}
+.addrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{background:var(--ground);color:var(--ink);border:0;border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.chip:hover{background:var(--raise)}
+.check{display:flex;gap:10px;align-items:flex-start;margin:10px 0;font-size:15px;cursor:pointer}
+.check input{width:18px;height:18px;margin-top:3px;accent-color:var(--accent)}
+.check small{display:block;color:var(--muted);font-size:13px}
+details{margin-top:14px}
+summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--muted)}
+.side{position:sticky;top:24px;background:var(--panel);border-radius:var(--r-xl);padding:24px;display:flex;flex-direction:column;gap:16px}
+.side h2{font-size:18px;margin:0;font-weight:600}
+#cover{width:100%;aspect-ratio:1/1;border-radius:var(--r-lg);display:block;background:#f4f3ef}
+.checklist{list-style:none;margin:0;padding:0;font-size:14px;display:flex;flex-direction:column;gap:6px}
+.checklist li{display:flex;gap:8px;color:var(--muted)}
+.checklist li::before{content:"○";color:var(--muted);width:14px;flex:none}
+.checklist li.done{color:var(--ink)}
+.checklist li.done::before{content:"●";color:var(--leaf)}
+.btn{border:0;border-radius:var(--r-md);padding:14px 20px;font:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s;text-decoration:none;text-align:center}
+.btn.primary{background:var(--accent);color:#000}
+.btn.secondary{background:var(--raise);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+.actions .btn{flex:1 1 auto}
+.feedback{font-size:14px;margin:0;min-height:20px}
+.feedback.ok{color:var(--leaf)} .feedback.bad{color:var(--danger)} .feedback.warn{color:var(--warn)}
+.note{font-size:13px;color:var(--muted);margin:0}
+.recent{margin-top:64px}
+.recent h2{font-size:clamp(26px,3.4vw,40px);line-height:1.1;margin:0 0 16px;font-weight:700}
+.recent ul{list-style:none;padding:0;margin:0;background:var(--panel);border-radius:var(--r-lg);overflow:hidden}
+.recent li{display:flex;justify-content:space-between;gap:16px;padding:14px 18px;font-size:15px}
+.recent li:nth-child(odd){background:rgba(255,255,255,.035)}
+.recent a{color:var(--ink)}
+.recent span{color:var(--muted);font-size:13px;white-space:nowrap}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;flex-direction:column;z-index:10;padding:20px}
+.modal .bar{display:flex;justify-content:space-between;align-items:center;gap:12px;max-width:1240px;width:100%;margin:0 auto 12px}
+.modal iframe{flex:1;width:100%;max-width:1240px;margin:0 auto;border:0;border-radius:var(--r-lg);background:#fafafa}
+</style>
+</head>
+<body data-site-css={siteCss}>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">Colorteam internal tool</p>
+      <h1>Publish an <em>article</em></h1>
+      <p class="lede">Drop in the approved PDF and its images. Check the article below, then press Publish. It goes live on colorteam.io/blog in about a minute.</p>
+    </div>
+    <a class="tag" href="/blog/" target="_blank" rel="noopener">Open Insights</a>
+  </header>
+
+  <div class="builder">
+    <div class="steps">
+      <section class="step">
+        <div class="num">01</div>
+        <div>
+          <h2>Upload the approved PDF</h2>
+          <p class="hint">Save the article Google Doc as a PDF (File &gt; Download &gt; PDF). The title, headings, paragraphs and where each picture sits are read from it.</p>
+          <label class="drop" id="pdfDrop" tabindex="0"><input type="file" id="pdfInput" accept="application/pdf" /><b>Drop the PDF here</b>or click to choose a file</label>
+          <p class="status" id="pdfStatus"></p>
+        </div>
+      </section>
+
+      <section class="step">
+        <div class="num">02</div>
+        <div>
+          <h2>Add the images</h2>
+          <p class="hint">Upload the same images that are in the PDF. Name them in order (IMAGE_1, IMAGE_2...) and each one goes where its picture sits in the PDF. You can move them in step 4.</p>
+          <label class="drop" id="imgDrop" tabindex="0"><input type="file" id="imgInput" accept="image/*" multiple /><b>Drop the images here</b>or click to choose files (PNG, JPG or WebP)</label>
+          <div class="thumbs" id="thumbs"></div>
+          <p class="status" id="imgStatus"></p>
+        </div>
+      </section>
+
+      <section class="step">
+        <div class="num">03</div>
+        <div>
+          <h2>Check the details</h2>
+          <p class="hint">Filled in from the PDF. Edit anything that needs it.</p>
+          <label class="lbl" for="fTitle">Title</label>
+          <input class="field" id="fTitle" />
+          <label class="lbl" for="fDek">Subtitle under the title <span class="count" id="cDek"></span></label>
+          <textarea class="field" id="fDek" rows="2" placeholder="One or two sentences that sum the article up"></textarea>
+          <label class="lbl" for="fCard">Card summary on the Insights page <span class="count" id="cCard"></span></label>
+          <textarea class="field" id="fCard" rows="2" placeholder="Short line shown under the title on article cards"></textarea>
+          <div class="grid2">
+            <div><label class="lbl" for="fCategory">Type</label>
+              <select class="field" id="fCategory"><option>Insight</option><option>Brand identity</option><option>Case study</option></select></div>
+            <div><label class="lbl" for="fAuthor">Author</label>
+              <input class="field" id="fAuthor" list="authors" value="Olasubomi Archibong" />
+              <datalist id="authors"><option value="Olasubomi Archibong"></option><option value="Jessica Jetawo"></option><option value="Bibitayo Archibong"></option><option value="Isaac Abogye"></option></datalist></div>
+          </div>
+          <div class="grid2">
+            <div><label class="lbl" for="fTags">Tags (comma separated)</label><input class="field" id="fTags" placeholder="e.g. VERRA, Skincare" /></div>
+            <div><label class="lbl" for="fCoverLabel">Label on the cover card (top right)</label><input class="field" id="fCoverLabel" placeholder="e.g. VERRA" /></div>
+          </div>
+          <label class="lbl" for="fCoverHead">Cover card headline (the last word is set in italics)</label>
+          <input class="field" id="fCoverHead" />
+          <label class="lbl" for="fSlug">Web address</label>
+          <input class="field" id="fSlug" style="font-family:var(--mono);font-size:14px" />
+          <p class="status" id="slugStatus"></p>
+        </div>
+      </section>
+
+      <section class="step">
+        <div class="num">04</div>
+        <div>
+          <h2>Check the article</h2>
+          <p class="hint">Each block is one paragraph, heading or image. Change a block's type, edit the text, or move blocks with the arrows. Use **double stars** for bold and [text](https://link) for links.</p>
+          <label class="lbl" for="fHero">Main image at the top</label>
+          <select class="field" id="fHero"><option value="">No main image</option></select>
+          <label class="lbl">Article</label>
+          <div class="blocks" id="blocks"><p class="note">Upload the PDF to fill this in.</p></div>
+          <div class="addrow">
+            <button class="chip" data-add="p">+ Paragraph</button><button class="chip" data-add="h2">+ Heading</button><button class="chip" data-add="h3">+ Subheading</button><button class="chip" data-add="quote">+ Quote</button><button class="chip" data-add="ul">+ Bullet list</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="step">
+        <div class="num">05</div>
+        <div>
+          <h2>Where it shows up</h2>
+          <label class="check"><input type="checkbox" id="fFeatured" checked /><span>Feature it at the top of the Insights page<small>Replaces the current featured article.</small></span></label>
+          <label class="check"><input type="checkbox" id="fHome" checked /><span>Show it on the homepage<small>Takes the first of the three homepage cards; the oldest one drops off.</small></span></label>
+          <details id="featDetails">
+            <summary>Featured card highlights (optional)</summary>
+            <p class="hint" style="margin-top:10px">Three short highlights shown on the featured card, like "Palette / Drawn from nature".</p>
+            <div class="grid2"><input class="field" id="s1l" placeholder="Label 1" /><input class="field" id="s1t" placeholder="Text 1" /></div>
+            <div class="grid2" style="margin-top:8px"><input class="field" id="s2l" placeholder="Label 2" /><input class="field" id="s2t" placeholder="Text 2" /></div>
+            <div class="grid2" style="margin-top:8px"><input class="field" id="s3l" placeholder="Label 3" /><input class="field" id="s3t" placeholder="Text 3" /></div>
+          </details>
+          <details>
+            <summary>Book a call box at the end</summary>
+            <label class="lbl" for="fCtaTitle" style="margin-top:12px">Headline</label>
+            <input class="field" id="fCtaTitle" value="Ready to build a brand people remember?" />
+            <label class="lbl" for="fCtaText">Text</label>
+            <input class="field" id="fCtaText" value="Book a call and we will show you how Colorteam can help." />
+          </details>
+        </div>
+      </section>
+    </div>
+
+    <aside class="side">
+      <h2>Cover card</h2>
+      <canvas id="cover" width="1600" height="1600" aria-label="Cover card preview"></canvas>
+      <ul class="checklist" id="checklist">
+        <li data-k="pdf">PDF read</li>
+        <li data-k="title">Title, subtitle and card summary</li>
+        <li data-k="blocks">Article has text</li>
+        <li data-k="images">Images placed</li>
+        <li data-k="pass">Team passcode</li>
+      </ul>
+      <div>
+        <label class="lbl" for="fPass">Team passcode</label>
+        <input class="field" id="fPass" type="password" autocomplete="current-password" placeholder="Remembered on this device" />
+      </div>
+      <label class="check hidden" id="overwriteRow"><input type="checkbox" id="fOverwrite" /><span>Replace the article already at this address</span></label>
+      <div class="actions">
+        <button class="btn secondary" id="previewBtn" disabled>Preview</button>
+        <button class="btn primary" id="publishBtn" disabled>Publish</button>
+      </div>
+      <p class="feedback" id="feedback"></p>
+      <p class="note">Publishing puts the article live straight away. To take one down or fix it after publishing, publish it again at the same address or ask Subomi.</p>
+    </aside>
+  </div>
+
+  <section class="recent">
+    <h2>Published articles</h2>
+    <ul id="recent"><li><span>Loading...</span></li></ul>
+  </section>
+</div>
+
+<div class="modal hidden" id="modal" role="dialog" aria-label="Article preview">
+  <div class="bar"><b>Preview</b><button class="btn secondary" id="closePreview">Close preview</button></div>
+  <iframe id="previewFrame" title="Article preview"></iframe>
+</div>
+
+<script>
+import * as pdfjsLib from "pdfjs-dist";
+import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import { parseArticlePdf, slugify, readTime } from "../lib/pdf-article.js";
+
+// The Apps Script web app that commits articles to GitHub (tools/article-publisher/Code.gs).
+const PUBLISH_ENDPOINT = "";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k) { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked */ } },
+};
+
+const state = { pdfName: "", blocks: [], images: [], imageSlots: [], heroId: "", existing: [], slugTouched: false, publishing: false };
+// images: {id, name, url, width, height, alt, caption}
+// blocks: {type, text, items, img (image id)}
+
+/* ---------- helpers ---------- */
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+|\/[^)\s]*)\)/g, '<a href="$2">$1</a>');
+const natural = (a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
+const firstSentences = (t, max) => {
+  if (!t) return "";
+  const parts = t.match(/[^.!?]+[.!?]+/g) || [t];
+  let out = "";
+  for (const p of parts) { if ((out + p).trim().length > max) break; out += p; }
+  return (out || t.slice(0, max)).trim();
+};
+function setStatus(el, msg, kind) { el.textContent = msg; el.className = (el.id === "feedback" ? "feedback" : "status") + (kind ? " " + kind : ""); }
+
+/* ---------- step 1: PDF ---------- */
+function wireDrop(drop, input, onFiles) {
+  input.addEventListener("change", () => onFiles([...input.files]));
+  drop.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } });
+  ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", (e) => onFiles([...e.dataTransfer.files]));
+}
+
+wireDrop($("pdfDrop"), $("pdfInput"), async (files) => {
+  const file = files.find((f) => f.type === "application/pdf" || /\.pdf$/i.test(f.name));
+  if (!file) return setStatus($("pdfStatus"), "That isn't a PDF. Save the Google Doc as a PDF and try again.", "bad");
+  setStatus($("pdfStatus"), "Reading " + file.name + "...", "");
+  try {
+    const r = await parseArticlePdf(pdfjsLib, new Uint8Array(await file.arrayBuffer()));
+    if (!r.blocks.length) throw new Error("no_text");
+    state.pdfName = file.name;
+    state.imageSlots = r.imageSlots;
+    state.blocks = r.blocks.map((b) => ({ ...b }));
+    const title = r.title || file.name.replace(/\.pdf$/i, "");
+    $("fTitle").value = title;
+    const lead = (r.blocks.find((b) => b.type === "lead") || {}).text || "";
+    $("fDek").value = r.kicker && r.kicker.length > 40 ? r.kicker : firstSentences(lead, 200);
+    $("fCard").value = firstSentences(lead, 140);
+    $("fCoverHead").value = title.includes(":") && title.split(":")[1].trim().split(" ").length >= 3 ? title.split(":").slice(1).join(":").trim() : title;
+    if (!$("fCoverLabel").value && title.includes(":")) $("fCoverLabel").value = title.split(":")[0].trim();
+    if (!state.slugTouched) $("fSlug").value = slugify(title);
+    const pics = r.imageSlots.length;
+    setStatus($("pdfStatus"), `Read ${r.pages} page${r.pages === 1 ? "" : "s"}: ${r.blocks.length} blocks${pics ? `, ${pics} picture${pics === 1 ? "" : "s"}` : ""}. ${pics ? "Now add the images." : ""}`, "ok");
+    placeImages();
+    refresh();
+  } catch (err) {
+    console.error(err);
+    setStatus($("pdfStatus"), "Couldn't read text from this PDF. If it was scanned or exported as images, export it again from the Google Doc.", "bad");
+  }
+});
+
+/* ---------- step 2: images ---------- */
+wireDrop($("imgDrop"), $("imgInput"), async (files) => {
+  const imgs = files.filter((f) => f.type.startsWith("image/")).sort((a, b) => natural(a.name, b.name));
+  if (!imgs.length) return setStatus($("imgStatus"), "No images found in that selection.", "bad");
+  for (const f of imgs) {
+    const url = URL.createObjectURL(f);
+    const dim = await new Promise((res) => { const im = new Image(); im.onload = () => res([im.naturalWidth, im.naturalHeight]); im.onerror = () => res([0, 0]); im.src = url; });
+    state.images.push({ id: "i" + Math.random().toString(36).slice(2, 9), name: f.name, file: f, url, width: dim[0], height: dim[1], alt: "", caption: "" });
+  }
+  state.images.sort((a, b) => natural(a.name, b.name));
+  placeImages();
+  refresh();
+});
+
+// Put images where their pictures sat in the PDF. A picture before any text becomes the main image.
+// Runs again whenever a PDF or images are added, keeping any text edits.
+function placeImages() {
+  const text = state.blocks.filter((b) => b.type !== "img");
+  const slots = state.imageSlots;
+  const at = {}; const tail = [];
+  state.heroId = "";
+  state.images.forEach((im, n) => {
+    const slot = n < slots.length ? slots[n] : null;
+    if (n === 0 && (slot === 0 || slots.length === 0)) { state.heroId = im.id; return; }
+    if (slot === null) tail.push(im.id); else (at[slot] = at[slot] || []).push(im.id);
+  });
+  const out = [];
+  const push = (c) => (at[c] || []).forEach((id) => out.push({ type: "img", img: id }));
+  push(0);
+  text.forEach((b, i) => { out.push(b); push(i + 1); });
+  Object.keys(at).filter((k) => +k > text.length).forEach((k) => at[k].forEach((id) => out.push({ type: "img", img: id })));
+  tail.forEach((id) => out.push({ type: "img", img: id }));
+  state.blocks = out;
+}
+
+function renderThumbs() {
+  $("thumbs").innerHTML = state.images.map((im) => `<figure><img src="${im.url}" alt=""><figcaption title="${esc(im.name)}">${esc(im.name)}</figcaption></figure>`).join("");
+  const hero = $("fHero");
+  hero.innerHTML = `<option value="">No main image</option>` + state.images.map((im) => `<option value="${im.id}">${esc(im.name)}</option>`).join("");
+  hero.value = state.images.some((im) => im.id === state.heroId) ? state.heroId : "";
+  if (state.images.length) setStatus($("imgStatus"), `${state.images.length} image${state.images.length === 1 ? "" : "s"} added.`, "ok");
+}
+
+$("fHero").addEventListener("change", () => {
+  const id = $("fHero").value;
+  state.heroId = id;
+  state.blocks = state.blocks.filter((b) => !(b.type === "img" && b.img === id));
+  // an image no longer used as the main image goes back at the end of the article
+  const used = new Set(state.blocks.filter((b) => b.type === "img").map((b) => b.img));
+  for (const im of state.images) if (im.id !== id && !used.has(im.id)) state.blocks.push({ type: "img", img: im.id });
+  refresh();
+});
+
+/* ---------- step 4: block editor ---------- */
+const TYPES = [["lead", "Intro paragraph"], ["p", "Paragraph"], ["h2", "Heading"], ["h3", "Subheading"], ["quote", "Quote"], ["ul", "Bullet list"], ["ol", "Numbered list"]];
+function renderBlocks() {
+  const wrap = $("blocks");
+  if (!state.blocks.length) { wrap.innerHTML = `<p class="note">Upload the PDF to fill this in.</p>`; return; }
+  wrap.innerHTML = state.blocks.map((b, i) => {
+    const tools = `<div class="tools"><button class="ic" data-act="up" data-i="${i}" aria-label="Move up">↑</button><button class="ic" data-act="down" data-i="${i}" aria-label="Move down">↓</button><button class="ic del" data-act="del" data-i="${i}" aria-label="Remove">✕</button></div>`;
+    if (b.type === "img") {
+      const im = state.images.find((x) => x.id === b.img);
+      if (!im) return "";
+      return `<div class="blk img-blk"><div class="note" style="padding-top:8px">Image</div><div class="img"><img src="${im.url}" alt=""><div><input class="field" data-i="${i}" data-f="alt" placeholder="Describe the image (for accessibility)" value="${esc(im.alt)}"><input class="field" data-i="${i}" data-f="caption" placeholder="Caption (optional)" value="${esc(im.caption)}"></div></div>${tools}</div>`;
+    }
+    const opts = TYPES.map(([v, l]) => `<option value="${v}"${v === b.type ? " selected" : ""}>${l}</option>`).join("");
+    const val = b.type === "ul" || b.type === "ol" ? (b.items || []).join("\n") : b.text || "";
+    const rows = Math.min(10, Math.max(1, Math.ceil(val.length / 90) + (val.match(/\n/g) || []).length));
+    return `<div class="blk ${b.type}"><select class="field" data-i="${i}" data-f="type" aria-label="Block type">${opts}</select><textarea class="field" data-i="${i}" data-f="text" rows="${rows}" aria-label="Block text">${esc(val)}</textarea>${tools}</div>`;
+  }).join("");
+}
+
+$("blocks").addEventListener("input", (e) => {
+  const t = e.target; const i = +t.dataset.i; const b = state.blocks[i]; if (!b) return;
+  if (t.dataset.f === "text") {
+    if (b.type === "ul" || b.type === "ol") b.items = t.value.split("\n").map((s) => s.trim()).filter(Boolean);
+    else b.text = t.value;
+  } else if (t.dataset.f === "alt" || t.dataset.f === "caption") {
+    const im = state.images.find((x) => x.id === b.img); if (im) im[t.dataset.f] = t.value;
+  }
+  refresh(false);
+});
+$("blocks").addEventListener("change", (e) => {
+  const t = e.target; if (t.dataset.f !== "type") return;
+  const b = state.blocks[+t.dataset.i]; const was = b.type; b.type = t.value;
+  const isList = (x) => x === "ul" || x === "ol";
+  if (isList(b.type) && !isList(was)) { b.items = (b.text || "").split("\n").map((s) => s.trim()).filter(Boolean); delete b.text; }
+  if (!isList(b.type) && isList(was)) { b.text = (b.items || []).join(" "); delete b.items; }
+  refresh();
+});
+$("blocks").addEventListener("click", (e) => {
+  const t = e.target.closest("button[data-act]"); if (!t) return;
+  const i = +t.dataset.i; const B = state.blocks;
+  if (t.dataset.act === "up" && i > 0) [B[i - 1], B[i]] = [B[i], B[i - 1]];
+  if (t.dataset.act === "down" && i < B.length - 1) [B[i + 1], B[i]] = [B[i], B[i + 1]];
+  if (t.dataset.act === "del") {
+    if (B[i].type === "img" || confirm("Remove this block?")) B.splice(i, 1);
+  }
+  refresh();
+});
+document.querySelectorAll("[data-add]").forEach((btn) => btn.addEventListener("click", () => {
+  const type = btn.dataset.add;
+  state.blocks.push(type === "ul" ? { type, items: ["New item"] } : { type, text: "" });
+  refresh();
+  const areas = $("blocks").querySelectorAll("textarea"); if (areas.length) areas[areas.length - 1].focus();
+}));
+
+/* ---------- cover card ---------- */
+const PALETTES = [
+  [["#a0cdf0", 0, 0], ["#beaaf0", 1600, 0], ["#d6f096", 1600, 1600]],
+  [["#beaaf0", 1600, 0], ["#d6f096", 0, 1600], ["#ffb28c", 1600, 1600]],
+  [["#ffb28c", 1600, 0], ["#a0cdf0", 0, 1600], ["#d6f096", 1600, 1600]],
+];
+let wordmark = null;
+const wm = new Image();
+wm.onload = () => { wordmark = wm; drawCover(); };
+wm.src = "/img/colorteam-wordmark.svg";
+let fontsReady = false;
+Promise.all([document.fonts.load('600 132px "Inter"'), document.fonts.load('400 30px "Inter"'), document.fonts.load('500 30px "Inter"'), document.fonts.load('italic 400 132px "Newsreader"')])
+  .then(() => { fontsReady = true; drawCover(); }).catch(() => { fontsReady = true; drawCover(); });
+
+function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function hexA(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; }
+
+function drawCover() {
+  const c = $("cover"); const ctx = c.getContext("2d");
+  const slug = $("fSlug").value || "x";
+  let h = 0; for (const ch of slug) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const pal = PALETTES[h % PALETTES.length];
+  ctx.clearRect(0, 0, 1600, 1600);
+  ctx.fillStyle = "#f4f3ef"; ctx.fillRect(0, 0, 1600, 1600);
+  for (const [col, x, y] of pal) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, 1000);
+    g.addColorStop(0, hexA(col, 0.85)); g.addColorStop(0.7, hexA(col, 0)); ctx.fillStyle = g; ctx.fillRect(0, 0, 1600, 1600);
+  }
+  ctx.fillStyle = "#0b0b0b"; ctx.strokeStyle = "#222"; ctx.lineWidth = 1.5; ctx.textBaseline = "alphabetic";
+  // category pill
+  const cat = $("fCategory").value || "Insight";
+  ctx.font = '400 30px "Inter", sans-serif';
+  const cw = ctx.measureText(cat).width;
+  roundRect(ctx, 90, 90, cw + 94, 56, 28); ctx.stroke();
+  ctx.beginPath(); ctx.arc(128, 118, 11, 0, Math.PI * 2); ctx.fillStyle = "#222"; ctx.fill();
+  ctx.fillStyle = "#0b0b0b"; ctx.fillText(cat, 158, 129);
+  // label top right
+  ctx.font = '500 30px "Inter", sans-serif'; ctx.textAlign = "right";
+  ctx.fillText(($("fCoverLabel").value || "").slice(0, 40), 1510, 130); ctx.textAlign = "left";
+  // headline: last word in italics
+  const words = ($("fCoverHead").value || $("fTitle").value || "Your headline here").trim().split(/\s+/);
+  let size = 132, lines;
+  const fontFor = (italic, s) => italic ? `italic 400 ${s}px "Newsreader", serif` : `600 ${s}px "Inter", sans-serif`;
+  const layout = (s) => {
+    const out = [[]]; let w = 0;
+    ctx.font = fontFor(false, s); const space = ctx.measureText(" ").width;
+    words.forEach((word, i) => {
+      const it = i === words.length - 1 && words.length > 1;
+      ctx.font = fontFor(it, s); if ("letterSpacing" in ctx) ctx.letterSpacing = it ? "-2px" : `${-s * 0.034}px`;
+      const ww = ctx.measureText(word).width;
+      if (w && w + space + ww > 1330) { out.push([]); w = 0; }
+      out[out.length - 1].push({ word, it, ww }); w += (w ? space : 0) + ww;
+    });
+    return out;
+  };
+  do { lines = layout(size); if (lines.length <= 3) break; size -= 8; } while (size > 80);
+  const total = lines.length * size;
+  let y = 692 - total / 2 + size * 0.82;
+  ctx.font = fontFor(false, size); const space = ctx.measureText(" ").width;
+  for (const line of lines) {
+    let x = 92;
+    for (const p of line) {
+      ctx.font = fontFor(p.it, size); if ("letterSpacing" in ctx) ctx.letterSpacing = p.it ? "-2px" : `${-size * 0.034}px`;
+      ctx.fillText(p.word, x, y); x += p.ww + space;
+    }
+    y += size;
+  }
+  if ("letterSpacing" in ctx) ctx.letterSpacing = "0px";
+  // wordmark bottom left, drawn dark
+  if (wordmark) {
+    const wh = 46, ww = wordmark.naturalWidth ? wh * wordmark.naturalWidth / wordmark.naturalHeight : 250;
+    const off = document.createElement("canvas"); off.width = Math.ceil(ww); off.height = wh;
+    const o = off.getContext("2d"); o.drawImage(wordmark, 0, 0, ww, wh); o.globalCompositeOperation = "source-in"; o.fillStyle = "#0b0b0b"; o.fillRect(0, 0, ww, wh);
+    ctx.drawImage(off, 90, 1600 - 84 - wh);
+  }
+  // url pill bottom right
+  ctx.font = '500 28px "Inter", sans-serif'; const uw = ctx.measureText("colorteam.io").width;
+  roundRect(ctx, 1510 - uw - 50, 1600 - 84 - 52, uw + 50, 52, 26); ctx.stroke();
+  ctx.fillText("colorteam.io", 1510 - uw - 25, 1600 - 84 - 16);
+}
+
+/* ---------- article assembly ---------- */
+function stamp() { return Date.now().toString(36); }
+async function toWeb(file, maxW) {
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(1, maxW / bmp.width);
+  const c = document.createElement("canvas"); c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+  const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(bmp, 0, 0, c.width, c.height);
+  return canvasToFile(c);
+}
+function canvasToFile(c) {
+  return new Promise((res) => c.toBlob((b) => {
+    if (b && b.type === "image/webp") return res({ blob: b, ext: "webp" });
+    c.toBlob((j) => res({ blob: j, ext: "jpg" }), "image/jpeg", 0.88);
+  }, "image/webp", 0.86));
+}
+const b64 = (blob) => new Promise((res) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(",")[1]); r.readAsDataURL(blob); });
+
+function textBlocks() {
+  return state.blocks.filter((b) => b.type !== "img" && ((b.text && b.text.trim()) || (b.items && b.items.length)));
+}
+
+// Builds the article JSON. With forPreview, images point at local previews instead of their final address.
+async function buildArticle(forPreview) {
+  const slug = $("fSlug").value;
+  const t = stamp();
+  const dir = `/img/articles/${slug}/`;
+  const files = [];
+  const srcFor = {};
+  if (!forPreview) {
+    let n = 0;
+    for (const im of state.images) {
+      const used = state.heroId === im.id || state.blocks.some((b) => b.type === "img" && b.img === im.id);
+      if (!used) continue;
+      n++;
+      const out = await toWeb(im.file, 1600);
+      const name = `${t}-${n}.${out.ext}`;
+      files.push({ name, base64: await b64(out.blob) });
+      srcFor[im.id] = dir + name;
+    }
+    const cover = await canvasToFile($("cover"));
+    const coverName = `${t}-cover.${cover.ext}`;
+    files.push({ name: coverName, base64: await b64(cover.blob) });
+    srcFor.cover = dir + coverName;
+  } else {
+    for (const im of state.images) srcFor[im.id] = im.url;
+    srcFor.cover = $("cover").toDataURL("image/png");
+  }
+  const title = $("fTitle").value.trim();
+  const tags = $("fTags").value.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 4);
+  const blocks = state.blocks.map((b) => {
+    if (b.type === "img") {
+      const im = state.images.find((x) => x.id === b.img); if (!im) return null;
+      const out = { type: "img", src: srcFor[im.id], alt: im.alt.trim() || `${title}: image` };
+      if (im.caption.trim()) out.caption = im.caption.trim();
+      return out;
+    }
+    if (b.type === "ul" || b.type === "ol") return b.items && b.items.length ? { type: b.type, items: b.items } : null;
+    return b.text && b.text.trim() ? { type: b.type, text: b.text.trim() } : null;
+  }).filter(Boolean);
+  const heroIm = state.images.find((x) => x.id === state.heroId);
+  const date = new Date().toISOString().slice(0, 10);
+  const article = {
+    slug, title,
+    description: $("fDek").value.trim().slice(0, 300),
+    dek: $("fDek").value.trim(),
+    category: $("fCategory").value,
+    tags,
+    author: $("fAuthor").value.trim() || "Colorteam",
+    readTime: readTime(textBlocks()),
+    cover: srcFor.cover,
+    blocks,
+    cta: { title: $("fCtaTitle").value.trim(), text: $("fCtaText").value.trim() },
+    date,
+  };
+  if (heroIm) article.hero = { src: srcFor[heroIm.id], alt: heroIm.alt.trim() || title };
+  const stats = [1, 2, 3].map((k) => ({ label: $(`s${k}l`).value.trim(), text: $(`s${k}t`).value.trim() })).filter((s) => s.label && s.text);
+  const entry = { slug, title, category: article.category, cover: srcFor.cover, card: $("fCard").value.trim(), homepage: $("fHome").checked, date };
+  entry.feature = { title, dek: article.dek, readTime: article.readTime, stats, cta: "Read the article" };
+  return { article, entry, files };
+}
+
+/* ---------- preview ---------- */
+function articleHtml(a) {
+  const blocks = a.blocks.map((b, i) => {
+    if (b.type === "lead") return `<p class="ct-art-lead"${i === 0 ? ' style="margin-top:0"' : ""}>${inline(b.text)}</p>`;
+    if (b.type === "p") return `<p>${inline(b.text)}</p>`;
+    if (b.type === "h2" || b.type === "h3") return `<${b.type}>${inline(b.text)}</${b.type}>`;
+    if (b.type === "quote") return `<blockquote class="ct-art-quote">${inline(b.text)}</blockquote>`;
+    if (b.type === "ul" || b.type === "ol") return `<${b.type} class="ct-art-list">${b.items.map((x) => `<li>${inline(x)}</li>`).join("")}</${b.type}>`;
+    if (b.type === "img") return `<div class="ct-art-figs one"><figure class="ct-art-fig"><img alt="${esc(b.alt)}" src="${b.src}">${b.caption ? `<figcaption>${esc(b.caption)}</figcaption>` : ""}</figure></div>`;
+    return "";
+  }).join("");
+  return `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="${document.body.dataset.siteCss}"><link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet"></head>
+  <body><div class="pages-wrapper"><article class="ct-page ct-article">
+  <section class="section ct-art-head"${a.hero ? "" : ' style="padding-bottom:72px"'}><div class="container w-layout-blockcontainer"><div class="ct-art-headwrap">
+  <div class="ct-art-tags"><span class="ct-chip">${esc(a.category)}</span>${a.tags.map((t) => `<span class="ct-chip is-ghost">${esc(t)}</span>`).join("")}</div>
+  <h1 class="ct-art-title">${esc(a.title)}</h1>${a.dek ? `<p class="ct-art-dek">${esc(a.dek)}</p>` : ""}
+  <div class="ct-art-meta"><span>${esc(a.author)}</span><span class="dot"></span><span>${esc(a.readTime)}</span></div></div>
+  ${a.hero ? `<img class="ct-art-cover" alt="" src="${a.hero.src}">` : ""}</div></section>
+  <section class="section ct-art-body"${a.hero ? "" : ' style="padding-top:56px"'}><div class="container w-layout-blockcontainer"><div class="ct-art-col">${blocks}</div>
+  <a class="ct-art-cta" href="#"><div><span class="ct-chip is-dark">Work with us</span><h3>${esc(a.cta.title)}</h3><p>${esc(a.cta.text)}</p></div><span class="ct-art-cta-btn">Book a Call</span></a>
+  </div></section></article></div></body></html>`;
+}
+$("previewBtn").addEventListener("click", async () => {
+  const { article } = await buildArticle(true);
+  $("previewFrame").srcdoc = articleHtml(article);
+  $("modal").classList.remove("hidden");
+});
+$("closePreview").addEventListener("click", () => $("modal").classList.add("hidden"));
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") $("modal").classList.add("hidden"); });
+
+/* ---------- checks, refresh ---------- */
+function checks() {
+  const imgsPlaced = state.images.every((im) => state.heroId === im.id || state.blocks.some((b) => b.type === "img" && b.img === im.id));
+  return {
+    pdf: !!state.pdfName,
+    title: !!($("fTitle").value.trim() && $("fDek").value.trim() && $("fCard").value.trim() && /^[a-z0-9][a-z0-9-]{2,89}$/.test($("fSlug").value)),
+    blocks: textBlocks().length > 0,
+    images: imgsPlaced,
+    pass: !!$("fPass").value,
+  };
+}
+function counter(el, out, max) { const n = el.value.trim().length; out.textContent = `${n}/${max}`; out.classList.toggle("over", n > max); }
+function refresh(rerender = true) {
+  if (rerender) { renderThumbs(); renderBlocks(); }
+  counter($("fDek"), $("cDek"), 220); counter($("fCard"), $("cCard"), 150);
+  const c = checks();
+  document.querySelectorAll("#checklist li").forEach((li) => li.classList.toggle("done", !!c[li.dataset.k]));
+  const ready = Object.values(c).every(Boolean);
+  $("previewBtn").disabled = !c.pdf;
+  const exists = state.existing.some((a) => a.slug === $("fSlug").value);
+  $("overwriteRow").classList.toggle("hidden", !exists);
+  if (exists) setStatus($("slugStatus"), "An article already lives at this address. Tick \"Replace\" next to Publish to update it, or change the address.", "warn");
+  else setStatus($("slugStatus"), $("fSlug").value ? `colorteam.io/blog/${$("fSlug").value}/` : "", "");
+  $("publishBtn").disabled = !ready || state.publishing || (exists && !$("fOverwrite").checked);
+  drawCover();
+}
+["fTitle", "fDek", "fCard", "fTags", "fCoverHead", "fCoverLabel", "fCategory", "fAuthor", "fPass", "fOverwrite", "fHome", "fFeatured"].forEach((id) => {
+  $(id).addEventListener("input", () => refresh(false)); $(id).addEventListener("change", () => refresh(false));
+});
+$("fSlug").addEventListener("input", () => { state.slugTouched = true; $("fSlug").value = $("fSlug").value.toLowerCase().replace(/[^a-z0-9-]/g, "-"); refresh(false); });
+$("fTitle").addEventListener("input", () => { if (!state.slugTouched) $("fSlug").value = slugify($("fTitle").value); });
+$("fPass").value = store.get("ct-publish-pass");
+$("fPass").addEventListener("change", () => store.set("ct-publish-pass", $("fPass").value));
+
+/* ---------- publish ---------- */
+$("publishBtn").addEventListener("click", async () => {
+  if (!PUBLISH_ENDPOINT) return setStatus($("feedback"), "Publishing isn't connected yet. Ask Subomi to finish the setup.", "bad");
+  const featured = $("fFeatured").checked;
+  state.publishing = true; refresh(false);
+  setStatus($("feedback"), "Preparing images...", "");
+  try {
+    const { article, entry, files } = await buildArticle(false);
+    const size = files.reduce((n, f) => n + f.base64.length, 0);
+    if (size > 40e6) throw new Error("Images are too large together. Use fewer or smaller images.");
+    setStatus($("feedback"), "Publishing...", "");
+    const res = await fetch(PUBLISH_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ passcode: $("fPass").value, overwrite: $("fOverwrite").checked, featured, article, entry, files }),
+    });
+    const out = await res.json();
+    if (!out.ok) throw new Error(({
+      bad_passcode: "The team passcode is wrong.",
+      exists: "An article already lives at this address. Tick \"Replace\" or change the address.",
+      invalid: "Something in the article isn't valid: " + (out.detail || ""),
+      github: "GitHub didn't accept the update: " + (out.detail || ""),
+    })[out.error] || out.error || "Unknown error");
+    store.set("ct-publish-pass", $("fPass").value);
+    setStatus($("feedback"), "Published. The site is rebuilding, usually about a minute...", "ok");
+    waitForLive(article.slug);
+    loadRecent();
+  } catch (err) {
+    setStatus($("feedback"), String(err.message || err), "bad");
+  } finally {
+    state.publishing = false; refresh(false);
+  }
+});
+
+async function waitForLive(slug) {
+  const url = `/blog/${slug}/`;
+  for (let i = 0; i < 30; i++) {
+    await new Promise((r) => setTimeout(r, 8000));
+    try {
+      const r = await fetch(`${url}?check=${Date.now()}`, { cache: "no-store" });
+      if (r.ok) { $("feedback").innerHTML = `Live now: <a href="${url}" target="_blank" rel="noopener" style="color:inherit">colorteam.io${url}</a>`; $("feedback").className = "feedback ok"; return; }
+    } catch (e) { /* keep waiting */ }
+  }
+  setStatus($("feedback"), "Published, but the page isn't showing yet. Check again in a few minutes.", "warn");
+}
+
+async function loadRecent() {
+  if (!PUBLISH_ENDPOINT) { $("recent").innerHTML = `<li><span>Not connected yet.</span></li>`; return; }
+  try {
+    const r = await fetch(PUBLISH_ENDPOINT, { method: "GET" });
+    const d = await r.json();
+    state.existing = d.articles || [];
+    $("recent").innerHTML = state.existing.map((a) => `<li><a href="/blog/${esc(a.slug)}/" target="_blank" rel="noopener">${esc(a.title)}</a><span>${esc(a.category || "")}${a.date ? " · " + esc(a.date) : ""}</span></li>`).join("") || `<li><span>None yet.</span></li>`;
+    refresh(false);
+  } catch (e) {
+    $("recent").innerHTML = `<li><span>Couldn't load the list.</span></li>`;
+  }
+}
+loadRecent();
+refresh();
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+---
+// One Insights card (blog index, homepage row, More Insights). Data comes from src/data/articles.json.
+interface Props { article: { slug: string; title: string; category: string; cover: string; card: string } }
+const { article: a } = Astro.props;
+const href = `/blog/${a.slug}/`;
+---
+<div class="blog-cl-item" role="listitem"><div class="blog-v1-card-wrap"><a class="blog-v1-image-wrap w-inline-block" href={href}><img alt={a.title} class="blog-v1-image" loading="lazy" src={a.cover}/></a><div class="blog-v1-card-ctg">{a.category}</div><a class="blog-v1-card-link w-inline-block" href={href}>{a.title}</a><p class="blog-v1-card-details">{a.card}</p></div></div>

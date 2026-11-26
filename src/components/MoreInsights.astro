@@ -1,0 +1,9 @@
+---
+// "More Insights" row at the end of an article: the three newest other articles.
+import data from "../data/articles.json";
+import ArticleCard from "./ArticleCard.astro";
+interface Props { current: string; id: string }
+const { current, id } = Astro.props;
+const more = data.articles.filter((a) => a.slug !== current).slice(0, 3);
+---
+<section class="section blog-v1 ct-blog-all ct-art-more" id={id}><div class="container w-layout-blockcontainer"><div class="blog-v1-wrapper"><div class="future-top-wrap"><div class="feature-top-left-wrap"><h2 class="future-title _01">More Insights</h2></div></div><div class="blog-v1-wrap"><div class="blog-cl-wrapper"><div class="blog-v1-grid-wrap" role="list">{more.map((a) => <ArticleCard article={a} />)}</div></div></div></div></div></section>
